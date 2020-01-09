@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 
 class WebsiteFilter:
+    """ Manage website filters """
     base_url = "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa/"
 
     def __init__(self, filters_selected):

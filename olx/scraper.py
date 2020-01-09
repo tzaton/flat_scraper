@@ -32,5 +32,4 @@ if __name__ == '__main__':
                 offer_content = BeautifulSoup(site.text, 'lxml').find('table', {'id': 'offers_table'})
                 for o in offer_content.find_all('tr', {'class': 'wrap'}):
                     offer = Offer(o)
-                    print(offer.__dict__)
             k += 1
