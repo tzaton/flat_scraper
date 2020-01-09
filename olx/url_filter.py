@@ -184,12 +184,6 @@ class WebsiteFilter:
         param_dict[filter_key] = filter_value
         return param_dict
 
-    def reset_page(self, param_dict):
-        """ Remove page number from url """
-        filter_key = self.filters['Strona']['param']
-        param_dict.pop(filter_key, None)
-        return param_dict
-
 
 if __name__ == '__main__':
     selected_filters = {'Umeblowane': 'Tak',
