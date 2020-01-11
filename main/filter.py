@@ -5,14 +5,14 @@ import requests
 from bs4 import BeautifulSoup
 
 
-class WebsiteFilter:
-    """ Manage website filters """
-    base_url = "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa/"
+class OLXFilter:
+    """ Manage website filters for OLX """
+    BASE_URL = "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa/"
+    BASE_SITE = requests.get(BASE_URL)
+    BASE_CONTENT = BeautifulSoup(BASE_SITE.text, 'lxml')
+    SEARCH_PATTERN = re.compile(r'search\[.+\]')  # pattern for filters
 
-    def __init__(self, filters_selected):
-        self.base_site = requests.get(self.base_url)
-        self.base_content = BeautifulSoup(self.base_site.text, 'lxml')
-        self.search_pattern = re.compile(r'search\[.+\]')  # pattern for filters
+    def __init__(self, filters_selected: dict):
         self.filters = {}  # dictionary to store filter parameters
         self.filters_selected = filters_selected  # filters specified for scraping
         self.url_params = []  # filters passed to GET method (list of dicts)
@@ -29,7 +29,7 @@ class WebsiteFilter:
     def _get_filters_main(self):
         """ Get filters from frame """
         filters = {}
-        for param in self.base_content.find(class_="clr multifilters subSelectActive").find_all(
+        for param in self.BASE_CONTENT.find(class_="clr multifilters subSelectActive").find_all(
                 class_=re.compile("param param(Select|Float)")):
             filter_code = param['data-name']
             for filter_item in param.find_all('div', {'class': re.compile('filter-item')}):
@@ -37,7 +37,7 @@ class WebsiteFilter:
                 filter_name = filter_name.replace(b'\xc2\xb2'.decode(), '2')  # Replace square meters
                 multiparam = filter_item.find('input', {'class': re.compile('defaultval')})
                 if multiparam:
-                    filter_code = re.search(self.search_pattern, multiparam['class'][2]).group()
+                    filter_code = re.search(self.SEARCH_PATTERN, multiparam['class'][2]).group()
                 else:
                     filter_code = filter_code.replace('[]', '[{param_order}]')
                 filters[filter_name] = {'param': filter_code}
@@ -75,10 +75,10 @@ class WebsiteFilter:
     def _get_filters_district(self):
         """ Get district filter """
         districts = {'Dzielnica': {'param': '', 'values': {}}}
-        districts['Dzielnica']['values'] = {d.text: d['href'].split('=')[-1] for d in self.base_content.find_all(
+        districts['Dzielnica']['values'] = {d.text: d['href'].split('=')[-1] for d in self.BASE_CONTENT.find_all(
             'a', {'href': re.compile('district_id')})}
-        districts['Dzielnica']['param'] = re.search(self.search_pattern,
-                                                    urllib.parse.unquote(self.base_content.find(
+        districts['Dzielnica']['param'] = re.search(self.SEARCH_PATTERN,
+                                                    urllib.parse.unquote(self.BASE_CONTENT.find(
                                                         'a', {'href': re.compile('district_id')})['href'])).group()
         return districts
 
@@ -86,29 +86,30 @@ class WebsiteFilter:
         """ Get offer owner filter """
         owners = {'Właściciel': {'param': '', 'values': {}}}
         owners['Właściciel']['values'] = {[text for text in d.stripped_strings][0]: d['href'].split('=')[-1] for d in
-                                          self.base_content.find_all('a', class_='fleft tab tdnone topTabOffer')}
-        owners['Właściciel']['param'] = re.search(self.search_pattern,
-                                                  urllib.parse.unquote(self.base_content.find(
+                                          self.BASE_CONTENT.find_all('a', class_='fleft tab tdnone topTabOffer')}
+        owners['Właściciel']['param'] = re.search(self.SEARCH_PATTERN,
+                                                  urllib.parse.unquote(self.BASE_CONTENT.find(
                                                       'a', class_='fleft tab tdnone topTabOffer')['href'])).group()
         return owners
 
     def _get_filters_photos(self):
         """ Get photo filter """
-        photos = {'Tylko ze zdjęciem': {'param': self.base_content.find('input', id='photo-only')['name'],
-                                        'values': self.base_content.find('input', id='photo-only')['value']}}
+        photos = {'Tylko ze zdjęciem': {'param': self.BASE_CONTENT.find('input', id='photo-only')['name'],
+                                        'values': self.BASE_CONTENT.find('input', id='photo-only')['value']}}
         return photos
 
     def _get_filters_order(self):
         """ Get order (newest first) filter """
-        order = {'Sortuj: Najnowsze': {'param': re.search(self.search_pattern,
-                                                          urllib.parse.unquote(self.base_content.find(
+        order = {'Sortuj: Najnowsze': {'param': re.search(self.SEARCH_PATTERN,
+                                                          urllib.parse.unquote(self.BASE_CONTENT.find(
                                                               'a', {'data-type': 'created_at:desc'})[
                                                                                    'data-url'])).group(),
-                                       'values': urllib.parse.unquote(self.base_content.find(
+                                       'values': urllib.parse.unquote(self.BASE_CONTENT.find(
                                            'a', {'data-type': 'created_at:desc'})['data-url']).split('=')[-1]}}
         return order
 
-    def _get_filters_page(self):
+    @staticmethod
+    def _get_filters_page():
         """ Get page number filter """
         page_number = {'Strona': {'param': 'page'}}
         return page_number
@@ -184,15 +185,3 @@ class WebsiteFilter:
         filter_value = page_number
         param_dict[filter_key] = filter_value
         return param_dict
-
-
-if __name__ == '__main__':
-    selected_filters = {'Umeblowane': 'Tak',
-                        'Liczba pokoi': ('2 pokoje', '3 pokoje'),
-                        'Dzielnica': ['Wola', 'Targówek']}
-
-    website_filters = WebsiteFilter(selected_filters)
-    website_filters.get_filters()
-    print(website_filters.filters)
-    website_filters.get_url_params()
-    print(website_filters.url_params)
