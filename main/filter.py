@@ -1,5 +1,7 @@
 import re
 import urllib.parse
+import logging
+from pprint import pformat
 
 import requests
 from bs4 import BeautifulSoup
@@ -25,6 +27,7 @@ class OLXFilter:
         self.filters.update(self._get_filters_photos())
         self.filters.update(self._get_filters_order())
         self.filters.update(self._get_filters_page())
+        logging.info(f"Available filters for www.olx.pl are:\n{pformat(self.filters)}")
 
     def _get_filters_main(self):
         """ Get filters from frame """
@@ -34,7 +37,7 @@ class OLXFilter:
             filter_code = param['data-name']
             for filter_item in param.find_all('div', {'class': re.compile('filter-item')}):
                 filter_name = filter_item.find('span', {'class': 'header block'}).text
-                filter_name = filter_name.replace(b'\xc2\xb2'.decode(), '2')  # Replace square meters
+                filter_name = filter_name.replace(b'\xc2\xb2'.decode('utf-8'), '2')  # Replace square meters
                 multiparam = filter_item.find('input', {'class': re.compile('defaultval')})
                 if multiparam:
                     filter_code = re.search(self.SEARCH_PATTERN, multiparam['class'][2]).group()
@@ -178,6 +181,7 @@ class OLXFilter:
                 if name != 'Dzielnica':
                     param_dict.update(self._process_filter(name, vals))
             self.url_params.append(param_dict)
+        logging.info(f"Following parameters will be passed to URL:\n{pformat(self.url_params)}")
 
     def get_page(self, param_dict, page_number):
         """ Add page number to url """
