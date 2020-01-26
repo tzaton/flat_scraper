@@ -1,9 +1,23 @@
-import bs4
-from urllib.parse import urlparse
-from datetime import datetime, date, timedelta
 import locale
+from datetime import datetime, date, timedelta
+from urllib.parse import urlparse
+
+import bs4
+import requests
 
 from functions.set_locale import set_locale
+
+
+def get_ads(domain: str, ads_response: requests.models.Response):
+    """ Get HTML for ads """
+    if domain == 'www.olx.pl':
+        ad_content = bs4.BeautifulSoup(ads_response.text, 'lxml').find('table', {'id': 'offers_table'})
+        ad_wrappers = ad_content.find_all('tr', {'class': 'wrap'})
+    elif domain == 'www.otodom.pl':
+        ad_wrappers = None
+    else:
+        raise ValueError('Incorrect domain name')
+    return ad_wrappers
 
 
 class OLXAd:
@@ -69,17 +83,3 @@ class OLXAd:
         """ Get ad title """
         ad_title = self.ad_wrapper.find('a', {'data-cy': 'listing-ad-title'}).text.strip()
         return ad_title
-
-
-def get_ads_olx(ads_response):
-    """ Get HTML for ads for OLX """
-    ad_content = bs4.BeautifulSoup(ads_response.text, 'lxml').find('table', {'id': 'offers_table'})
-    ad_wrappers = ad_content.find_all('tr', {'class': 'wrap'})
-    return ad_wrappers
-
-
-def get_offer_olx(offer_response):
-    """ Get HTML for ads for OLX """
-    offer_wrapper = bs4.BeautifulSoup(offer_response.text, 'lxml').find('div', {'class': 'offerdescription clr',
-                                                                                'id': 'offerdescription'})
-    return offer_wrapper

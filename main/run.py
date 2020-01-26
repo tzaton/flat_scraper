@@ -3,11 +3,12 @@ from pathlib import Path
 
 from main.scraper import OLXScraper
 
-
+districts = ['Bemowo', 'Włochy', 'Wola', 'Ursynów', 'Śródmieście', 'Praga-Południe', 'Ochota', 'Mokotów',
+             'Bielany', 'Żoliborz']
 selected_filters = {'Umeblowane': 'Tak',
                     'Liczba pokoi': ('2 pokoje', '3 pokoje'),
                     'Cena do': '700000',
-                    'Dzielnica': ['Ochota', 'Mokotów'],
+                    'Dzielnica': districts,
                     'Pow. od': '40'
                     }
 
@@ -26,6 +27,8 @@ if __name__ == '__main__':
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     # Run scraper
+    data_file = Path(__file__).parent.parent / 'data' / "olx_test.json"
+
     scraper = OLXScraper(selected_filters)
     scraper.run()
-    scraper.export_data("olx_test.json")
+    scraper.export_data(data_file)  # Export data

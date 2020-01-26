@@ -2,4 +2,6 @@
 Get data on real estate sale offers in Warsaw using customizable filters.
 
 ## Supported platforms
-- olx.pl
+- [x] olx.pl
+- [ ] otodom.pl
+- [ ] gumtree.pl

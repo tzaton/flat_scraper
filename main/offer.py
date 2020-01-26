@@ -1,24 +1,76 @@
 import re
 
 import bs4
+import requests
 
 
-class OLXOffer:
-    """ Flat offer for OLX """
+def get_offer(domain: str, offer_response: requests.models.Response):
+    """ Get HTML for offer """
+    if domain == 'www.olx.pl':
+        offer_wrapper = bs4.BeautifulSoup(offer_response.text, 'lxml').find('div', {'class': 'offerdescription clr',
+                                                                                    'id': 'offerdescription'})
+    elif domain == 'www.otodom.pl':
+        offer_wrapper = bs4.BeautifulSoup(offer_response.text, 'lxml').find('article')
+    else:
+        raise ValueError('Incorrect domain name')
+    return offer_wrapper
+
+
+class Offer:
+    """ Flat offer - parent class """
     def __init__(self, offer_wrapper: bs4.element.Tag):
         self.offer_wrapper = offer_wrapper
         self.offer_params = {}
 
     def get_offer_params(self):
-        """ Get parameters of offer """
-        self.offer_params['price_meter'] = self._get_offer_price_meter()
-        self.offer_params['area'] = self._get_offer_area()
-        self.offer_params['furniture'] = self._get_offer_furniture()
-        self.offer_params['owner'] = self._get_offer_owner()
-        self.offer_params['floor'] = self._get_offer_floor()
-        self.offer_params['nrooms'] = self._get_offer_nrooms()
-        self.offer_params['market'] = self._get_offer_market()
-        self.offer_params['building_type'] = self._get_offer_buildtype()
+        """ Get parameters of offer if found """
+        if self._get_offer_price_meter():
+            self.offer_params['price_meter'] = self._get_offer_price_meter()
+        if self._get_offer_area():
+            self.offer_params['area'] = self._get_offer_area()
+        if self._get_offer_furniture():
+            self.offer_params['furniture'] = self._get_offer_furniture()
+        if self._get_offer_owner():
+            self.offer_params['owner'] = self._get_offer_owner()
+        if self._get_offer_floor():
+            self.offer_params['floor'] = self._get_offer_floor()
+        if self._get_offer_nrooms():
+            self.offer_params['nrooms'] = self._get_offer_nrooms()
+        if self._get_offer_market():
+            self.offer_params['market'] = self._get_offer_market()
+        if self._get_offer_buildtype():
+            self.offer_params['building_type'] = self._get_offer_buildtype()
+
+    # Methods overwritten by child class
+    def _get_offer_price_meter(self):
+        pass
+
+    def _get_offer_area(self):
+        pass
+
+    def _get_offer_furniture(self):
+        pass
+
+    def _get_offer_owner(self):
+        pass
+
+    def _get_offer_floor(self):
+        pass
+
+    def _get_offer_nrooms(self):
+        pass
+
+    def _get_offer_market(self):
+        pass
+
+    def _get_offer_buildtype(self):
+        pass
+
+
+class OLXOffer(Offer):
+    """ Flat offer for OLX """
+    def __init__(self, offer_wrapper):
+        super().__init__(offer_wrapper)
 
     def _get_param_value(self, par_name):
         """ Find parameter by name """
@@ -102,13 +154,38 @@ class OLXOffer:
         return building_type_encoded
 
 
-class OtodomOffer:
+class OtodomOffer(Offer):
     """ Flat offer for Otodom """
+    def __init__(self, offer_wrapper):
+        super().__init__(offer_wrapper)
 
-    def __init__(self, offer_wrapper: bs4.element.Tag):
-        self.offer_wrapper = offer_wrapper
-        self.offer_params = {}
+    def _get_offer_price_meter(self):
+        """ Get price per square meter """
+        offer_price_meter = self.offer_wrapper.find('div', {'class': 'css-18q4l99'}).text
+        offer_price_meter_float = float(re.sub(r'[^\d\.]', '', offer_price_meter))
+        return offer_price_meter_float
 
-    def get_offer_params(self):
-        """ Get parameters of offer """
-        pass
+    def _get_param_value(self, par_name):
+        """ Find parameter by name """
+        param_table = self.offer_wrapper.find('div', {'class': 'css-1kgyoyz-Xt'})  # Table (div) with parameters
+        par_pattern = re.compile(fr'{par_name}')
+        par_value = param_table.find(lambda tag: tag.name == 'li' and re.search(par_pattern, tag.text)).text
+        return par_value
+
+    def _get_offer_area(self):
+        """ Get area """
+        offer_area = self._get_param_value('Powierzchnia')
+        offer_area_float = float(re.sub(r'[^\d\.]', '', offer_area.replace(',', '.')))
+        return offer_area_float
+
+    def _get_offer_market(self):
+        """ Get offer market (primary/secondary) """
+        market = self._get_param_value('Rynek')
+        market_encoded = 'Primary' if 'pierwotny' in market else 'Secondary'
+        return market_encoded
+
+    def _get_offer_nrooms(self):
+        """ Get offer number of rooms """
+        nrooms = self._get_param_value('Liczba pokoi')
+        nrooms_encoded = re.sub(r'[^\d\.]', '', nrooms)
+        return nrooms_encoded
