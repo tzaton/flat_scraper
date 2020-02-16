@@ -167,7 +167,7 @@ class OtodomOffer(Offer):
 
     def _get_param_value(self, par_name):
         """ Find parameter by name """
-        param_table = self.offer_wrapper.find('div', {'class': 'css-1kgyoyz-Xt'})  # Table (div) with parameters
+        param_table = self.offer_wrapper.find('section', {'class': 'section-overview'})  # Table with parameters
         par_pattern = re.compile(fr'{par_name}')
         par_value = param_table.find(lambda tag: tag.name == 'li' and re.search(par_pattern, tag.text)).text
         return par_value
