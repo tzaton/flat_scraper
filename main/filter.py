@@ -33,10 +33,12 @@ class OLXFilter:
     def _get_filters_main(self):
         """ Get filters from frame """
         filters = {}
-        for param in self.BASE_CONTENT.find(class_="clr multifilters subSelectActive").find_all(
+        for param in self.BASE_CONTENT.find(
+            class_="clr multifilters subSelectActive").find_all(
                 class_=re.compile("param param(Select|Float)")):
             filter_code = param['data-name']
-            for filter_item in param.find_all('div', {'class': re.compile('filter-item')}):
+            for filter_item in param.find_all('div', {'class': re.compile(
+                    'filter-item')}):
                 filter_name = filter_item.find(
                     'span', {'class': 'header block'}).text
                 filter_name = filter_name.replace(
@@ -86,8 +88,10 @@ class OLXFilter:
         districts['Dzielnica']['values'] = {d.text: d['href'].split('=')[-1] for d in self.BASE_CONTENT.find_all(
             'a', {'href': re.compile('district_id')})}
         districts['Dzielnica']['param'] = re.search(self.SEARCH_PATTERN,
-                                                    urllib.parse.unquote(self.BASE_CONTENT.find(
-                                                        'a', {'href': re.compile('district_id')})['href'])).group()
+                                                    urllib.parse.unquote(
+                                                        self.BASE_CONTENT.find(
+                                                            'a', {'href': re.compile(
+                                                                'district_id')})['href'])).group()
         return districts
 
     def _get_filters_owner(self):
@@ -96,8 +100,9 @@ class OLXFilter:
         owners['Właściciel']['values'] = {[text for text in d.stripped_strings][0]: d['href'].split('=')[-1] for d in
                                           self.BASE_CONTENT.find_all('a', class_='fleft tab tdnone topTabOffer')}
         owners['Właściciel']['param'] = re.search(self.SEARCH_PATTERN,
-                                                  urllib.parse.unquote(self.BASE_CONTENT.find(
-                                                      'a', class_='fleft tab tdnone topTabOffer')['href'])).group()
+                                                  urllib.parse.unquote(
+                                                      self.BASE_CONTENT.find(
+                                                          'a', class_='fleft tab tdnone topTabOffer')['href'])).group()
         return owners
 
     def _get_filters_photos(self):
@@ -111,9 +116,10 @@ class OLXFilter:
     def _get_filters_order(self):
         """ Get order (newest first) filter """
         order = {'Sortuj: Najnowsze': {'param': re.search(self.SEARCH_PATTERN,
-                                                          urllib.parse.unquote(self.BASE_CONTENT.find(
-                                                              'a', {'data-type': 'created_at:desc'})[
-                                                              'data-url'])).group(),
+                                                          urllib.parse.unquote(
+                                                              self.BASE_CONTENT.find(
+                                                                  'a', {'data-type': 'created_at:desc'})[
+                                                                  'data-url'])).group(),
                                        'values': urllib.parse.unquote(self.BASE_CONTENT.find(
                                            'a', {'data-type': 'created_at:desc'})['data-url']).split('=')[-1]}}
         return order
@@ -192,7 +198,8 @@ class OLXFilter:
                     param_dict.update(self._process_filter(name, vals))
             self.url_params.append(param_dict)
         logging.info(
-            f"Following parameters will be passed to URL:\n{pformat(self.url_params)}")
+            f"Following parameters will be passed to URL:\n{pformat(
+                self.url_params)}")
 
     def get_page(self, param_dict, page_number):
         """ Add page number to url """

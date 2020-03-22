@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import bs4
 import requests
 
-from functions.set_locale import set_locale
+from utils.set_locale import set_locale
 
 
 def get_ads(domain: str, ads_response: requests.models.Response):
@@ -62,7 +62,8 @@ class OLXAd:
 
     def _get_ad_date(self):
         """ Get ad date added """
-        ad_date = self.ad_wrapper.find('i', {'data-icon': 'clock'}).next_sibling.strip()
+        ad_date = self.ad_wrapper.find(
+            'i', {'data-icon': 'clock'}).next_sibling.strip()
         if ad_date.startswith('dzisiaj'):
             ad_date_day = date.today()
         elif ad_date.startswith('wczoraj'):
@@ -79,10 +80,12 @@ class OLXAd:
     def _get_ad_price(self):
         """ Get ad price (total) """
         ad_price = self.ad_wrapper.find('p', {'class': 'price'}).text.strip()
-        ad_price_float = float(ad_price.replace('zł', '').replace(' ', '').replace(',', '.'))
+        ad_price_float = float(ad_price.replace(
+            'zł', '').replace(' ', '').replace(',', '.'))
         return ad_price_float
 
     def _get_ad_title(self):
         """ Get ad title """
-        ad_title = self.ad_wrapper.find('a', {'data-cy': 'listing-ad-title'}).text.strip()
+        ad_title = self.ad_wrapper.find(
+            'a', {'data-cy': 'listing-ad-title'}).text.strip()
         return ad_title

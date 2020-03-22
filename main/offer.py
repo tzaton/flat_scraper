@@ -7,10 +7,12 @@ import requests
 def get_offer(domain: str, offer_response: requests.models.Response):
     """ Get HTML for offer """
     if domain == 'www.olx.pl':
-        offer_wrapper = bs4.BeautifulSoup(offer_response.text, 'lxml').find('div', {'class': 'offerdescription clr',
-                                                                                    'id': 'offerdescription'})
+        offer_wrapper = bs4.BeautifulSoup(offer_response.text, 'lxml').find(
+            'div', {'class': 'offerdescription clr',
+                    'id': 'offerdescription'})
     elif domain == 'www.otodom.pl':
-        offer_wrapper = bs4.BeautifulSoup(offer_response.text, 'lxml').find('article')
+        offer_wrapper = bs4.BeautifulSoup(
+            offer_response.text, 'lxml').find('article')
     else:
         raise ValueError('Incorrect domain name')
     return offer_wrapper
@@ -18,6 +20,7 @@ def get_offer(domain: str, offer_response: requests.models.Response):
 
 class Offer:
     """ Flat offer - parent class """
+
     def __init__(self, offer_wrapper: bs4.element.Tag):
         self.offer_wrapper = offer_wrapper
         self.offer_params = {}
@@ -69,27 +72,32 @@ class Offer:
 
 class OLXOffer(Offer):
     """ Flat offer for OLX """
+
     def __init__(self, offer_wrapper):
         super().__init__(offer_wrapper)
 
     def _get_param_value(self, par_name):
         """ Find parameter by name """
         try:
-            par_value = self.offer_wrapper.find('th', text=par_name).find_next_sibling().text.strip()
+            par_value = self.offer_wrapper.find(
+                'th', text=par_name).find_next_sibling().text.strip()
         except AttributeError:
             par_value = None
         return par_value
 
     def _get_offer_price_meter(self):
         """ Get price per square meter """
-        offer_price_meter = self._get_param_value('Cena za m' + b'\xc2\xb2'.decode('utf-8'))
-        offer_price_meter_float = float(re.sub(r'[^\d\.]', '', offer_price_meter))
+        offer_price_meter = self._get_param_value(
+            'Cena za m' + b'\xc2\xb2'.decode('utf-8'))
+        offer_price_meter_float = float(
+            re.sub(r'[^\d\.]', '', offer_price_meter))
         return offer_price_meter_float
 
     def _get_offer_area(self):
         """ Get area """
         offer_area = self._get_param_value('Powierzchnia')
-        offer_area_float = float(re.sub(r'[^\d\.]', '', offer_area.replace(',', '.')))
+        offer_area_float = float(
+            re.sub(r'[^\d\.]', '', offer_area.replace(',', '.')))
         return offer_area_float
 
     def _get_offer_furniture(self):
@@ -156,26 +164,33 @@ class OLXOffer(Offer):
 
 class OtodomOffer(Offer):
     """ Flat offer for Otodom """
+
     def __init__(self, offer_wrapper):
         super().__init__(offer_wrapper)
 
     def _get_offer_price_meter(self):
         """ Get price per square meter """
-        offer_price_meter = self.offer_wrapper.find('div', {'class': 'css-18q4l99'}).text
-        offer_price_meter_float = float(re.sub(r'[^\d\.]', '', offer_price_meter))
+        offer_price_meter = self.offer_wrapper.find(
+            'div', {'class': 'css-18q4l99'}).text
+        offer_price_meter_float = float(
+            re.sub(r'[^\d\.]', '', offer_price_meter))
         return offer_price_meter_float
 
     def _get_param_value(self, par_name):
         """ Find parameter by name """
-        param_table = self.offer_wrapper.find('section', {'class': 'section-overview'})  # Table with parameters
+        param_table = self.offer_wrapper.find(
+            'section', {'class': 'section-overview'})  # Table with parameters
         par_pattern = re.compile(fr'{par_name}')
-        par_value = param_table.find(lambda tag: tag.name == 'li' and re.search(par_pattern, tag.text)).text
+        par_value = param_table.find(
+            lambda tag: tag.name == 'li' and re.search(
+                par_pattern, tag.text)).text
         return par_value
 
     def _get_offer_area(self):
         """ Get area """
         offer_area = self._get_param_value('Powierzchnia')
-        offer_area_float = float(re.sub(r'[^\d\.]', '', offer_area.replace(',', '.')))
+        offer_area_float = float(
+            re.sub(r'[^\d\.]', '', offer_area.replace(',', '.')))
         return offer_area_float
 
     def _get_offer_market(self):

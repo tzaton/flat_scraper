@@ -13,6 +13,7 @@ from main.offer import OLXOffer, OtodomOffer, get_offer
 
 class Scraper:
     """ Flat scraper - parent class """
+
     def __init__(self, base_url):
         self.base_url = base_url
         self.domain = urlparse(self.base_url).netloc
@@ -35,7 +36,8 @@ class Scraper:
     def export_data(self, data_file):
         """ Save collected offer data into .json file"""
         with open(data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.offer_data, f, indent=4, default=str, sort_keys=True)
+            json.dump(self.offer_data, f, indent=4,
+                      default=str, sort_keys=True)
         logging.info(f"Offer data has been saved into file: {data_file}")
 
 
@@ -55,7 +57,9 @@ class OLXScraper(Scraper):
 
     def run(self):
         """ Run scraper """
-        logging.info(f"Running OLX Scraper for selected filters:\n{pformat(self.filters_selected)}")
+        logging.info(
+            f"Running OLX Scraper for selected filters:\n{pformat(
+                self.filters_selected)}")
         self.filter_processor.get_url_params()
 
         offer_counter = 0  # count browsed offers
@@ -76,16 +80,21 @@ class OLXScraper(Scraper):
                         ad_processor.get_ad_params()  # Get parameters for the advertisement
                         offer_pars = ad_processor.ad_params
                         # Access offer site
-                        offer_site = requests.get(ad_processor.ad_params['link'])
-                        logging.info(f"Scraping flat offer from: {offer_site.url}")
+                        offer_site = requests.get(
+                            ad_processor.ad_params['link'])
+                        logging.info(
+                            f"Scraping flat offer from: {offer_site.url}")
                         try:
-                            offer_wrapper = get_offer(offer_pars['domain'], offer_site)
+                            offer_wrapper = get_offer(
+                                offer_pars['domain'], offer_site)
                             offer_processor = self.offer_processors[offer_pars['domain']]
                             offer = offer_processor(offer_wrapper)
                             offer.get_offer_params()  # Get parameters for the offer
-                            offer_pars.update(offer.offer_params)  # Collect all found parameters
-                        except ValueError:
+                            # Collect all found parameters
+                            offer_pars.update(offer.offer_params)
+                        except Exception as e:
                             pass  # Skip incorrect domains
+                            logging.exception(e, exc_info=True)
                         logging.debug(offer_pars)
                         offer_counter += 1
                         self.offer_data.append(offer_pars)

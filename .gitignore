@@ -1,2 +1,6 @@
-.idea
-.vscode
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+log/
+data/
