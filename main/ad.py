@@ -11,7 +11,8 @@ from functions.set_locale import set_locale
 def get_ads(domain: str, ads_response: requests.models.Response):
     """ Get HTML for ads """
     if domain == 'www.olx.pl':
-        ad_content = bs4.BeautifulSoup(ads_response.text, 'lxml').find('table', {'id': 'offers_table'})
+        ad_content = bs4.BeautifulSoup(ads_response.text, 'lxml').find(
+            'table', {'id': 'offers_table'})
         ad_wrappers = ad_content.find_all('tr', {'class': 'wrap'})
     elif domain == 'www.otodom.pl':
         ad_wrappers = None
@@ -44,12 +45,14 @@ class OLXAd:
 
     def _get_ad_class(self):
         """ Get ad class (promoted or not) """
-        ad_class = 'promoted' if self.ad_wrapper.find('td', {'class': 'offer promoted '}) else 'standard'
+        ad_class = 'promoted' if self.ad_wrapper.find(
+            'td', {'class': 'offer promoted '}) else 'standard'
         return ad_class
 
     def _get_ad_link(self):
         """ Get ad URL """
-        ad_link = self.ad_wrapper.find('a', {'data-cy': 'listing-ad-title'})['href']
+        ad_link = self.ad_wrapper.find(
+            'a', {'data-cy': 'listing-ad-title'})['href']
         return ad_link
 
     def _get_ad_domain(self):

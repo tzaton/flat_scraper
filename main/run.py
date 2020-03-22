@@ -3,7 +3,8 @@ from pathlib import Path
 
 from main.scraper import OLXScraper
 
-districts = ['Bemowo', 'Włochy', 'Wola', 'Ursynów', 'Śródmieście', 'Praga-Południe', 'Ochota', 'Mokotów', 'Bielany',
+districts = ['Bemowo', 'Włochy', 'Wola', 'Ursynów', 'Śródmieście',
+             'Praga-Południe', 'Ochota', 'Mokotów', 'Bielany',
              'Żoliborz']
 selected_filters = {'Umeblowane': 'Tak',
                     'Liczba pokoi': ('2 pokoje', '3 pokoje'),
@@ -16,10 +17,13 @@ selected_filters = {'Umeblowane': 'Tak',
 if __name__ == '__main__':
     # Logging configuration
     log_file = Path(__file__).parent.parent / 'log' / 'flat_scraper.log'
-    log_formatter = logging.Formatter(fmt='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s',
-                                      datefmt='%Y-%m-%d %H:%M:%S')
+    log_formatter = logging.Formatter(
+        fmt='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S')
     sh = logging.StreamHandler()
-    fh = logging.FileHandler(filename=log_file, mode='w', encoding='utf-8')
+    fh = logging.FileHandler(filename=log_file,
+                             mode='w',
+                             encoding='utf-8')
     sh.setFormatter(log_formatter)
     fh.setFormatter(log_formatter)
     logging.basicConfig(level=logging.DEBUG,

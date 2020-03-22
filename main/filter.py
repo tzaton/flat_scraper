@@ -27,7 +27,8 @@ class OLXFilter:
         self.filters.update(self._get_filters_photos())
         self.filters.update(self._get_filters_order())
         self.filters.update(self._get_filters_page())
-        logging.info(f"Available filters for www.olx.pl are:\n{pformat(self.filters)}")
+        logging.info(
+            f"Available filters for www.olx.pl are:\n{pformat(self.filters)}")
 
     def _get_filters_main(self):
         """ Get filters from frame """
@@ -36,11 +37,15 @@ class OLXFilter:
                 class_=re.compile("param param(Select|Float)")):
             filter_code = param['data-name']
             for filter_item in param.find_all('div', {'class': re.compile('filter-item')}):
-                filter_name = filter_item.find('span', {'class': 'header block'}).text
-                filter_name = filter_name.replace(b'\xc2\xb2'.decode('utf-8'), '2')  # Replace square meters
-                multiparam = filter_item.find('input', {'class': re.compile('defaultval')})
+                filter_name = filter_item.find(
+                    'span', {'class': 'header block'}).text
+                filter_name = filter_name.replace(
+                    b'\xc2\xb2'.decode('utf-8'), '2')  # Replace square meters
+                multiparam = filter_item.find(
+                    'input', {'class': re.compile('defaultval')})
                 if multiparam:
-                    filter_code = re.search(self.SEARCH_PATTERN, multiparam['class'][2]).group()
+                    filter_code = re.search(
+                        self.SEARCH_PATTERN, multiparam['class'][2]).group()
                 else:
                     filter_code = filter_code.replace('[]', '[{param_order}]')
                 filters[filter_name] = {'param': filter_code}
@@ -97,8 +102,10 @@ class OLXFilter:
 
     def _get_filters_photos(self):
         """ Get photo filter """
-        photos = {'Tylko ze zdjęciem': {'param': self.BASE_CONTENT.find('input', id='photo-only')['name'],
-                                        'values': self.BASE_CONTENT.find('input', id='photo-only')['value']}}
+        photos = {'Tylko ze zdjęciem': {'param': self.BASE_CONTENT.find(
+            'input', id='photo-only')['name'],
+            'values': self.BASE_CONTENT.find(
+            'input', id='photo-only')['value']}}
         return photos
 
     def _get_filters_order(self):
@@ -106,7 +113,7 @@ class OLXFilter:
         order = {'Sortuj: Najnowsze': {'param': re.search(self.SEARCH_PATTERN,
                                                           urllib.parse.unquote(self.BASE_CONTENT.find(
                                                               'a', {'data-type': 'created_at:desc'})[
-                                                                                   'data-url'])).group(),
+                                                              'data-url'])).group(),
                                        'values': urllib.parse.unquote(self.BASE_CONTENT.find(
                                            'a', {'data-type': 'created_at:desc'})['data-url']).split('=')[-1]}}
         return order
@@ -134,7 +141,8 @@ class OLXFilter:
                             filter_value = self.filters[name]['values'][vals]
                         else:
                             filter_value = self.filters[name]['values']
-                        filter_key = self.filters[name]['param'].format(param_order=0)
+                        filter_key = self.filters[name]['param'].format(
+                            param_order=0)
                     else:
                         filter_value = vals
                         filter_key = self.filters[name]['param']
@@ -142,7 +150,8 @@ class OLXFilter:
                 elif isinstance(vals, list) or isinstance(vals, tuple):
                     for vo, vi in enumerate(vals):
                         filter_value = self.filters[name]['values'][vi]
-                        filter_key = self.filters[name]['param'].format(param_order=vo)
+                        filter_key = self.filters[name]['param'].format(
+                            param_order=vo)
                         filter_dict[filter_key] = filter_value
                 else:
                     raise TypeError
@@ -152,7 +161,8 @@ class OLXFilter:
 
     def get_url_params(self):
         """ Get URL based on selected filters """
-        filters_applied = {k: None for k, v in self.filters.items()}  # create empty dictionary with filter keys
+        filters_applied = {k: None for k, v in self.filters.items(
+        )}  # create empty dictionary with filter keys
         # Pre-defined (default) filters
         filters_applied['Tylko ze zdjęciem'] = self.filters['Tylko ze zdjęciem']['values']
         filters_applied['Sortuj: Najnowsze'] = self.filters['Sortuj: Najnowsze']['values']
@@ -181,7 +191,8 @@ class OLXFilter:
                 if name != 'Dzielnica':
                     param_dict.update(self._process_filter(name, vals))
             self.url_params.append(param_dict)
-        logging.info(f"Following parameters will be passed to URL:\n{pformat(self.url_params)}")
+        logging.info(
+            f"Following parameters will be passed to URL:\n{pformat(self.url_params)}")
 
     def get_page(self, param_dict, page_number):
         """ Add page number to url """
