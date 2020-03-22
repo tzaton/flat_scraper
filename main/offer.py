@@ -88,7 +88,7 @@ class OLXOffer(Offer):
     def _get_offer_price_meter(self):
         """ Get price per square meter """
         offer_price_meter = self._get_param_value(
-            'Cena za m' + b'\xc2\xb2'.decode('utf-8'))
+            'Cena za m\u00B2')
         offer_price_meter_float = float(
             re.sub(r'[^\d\.]', '', offer_price_meter))
         return offer_price_meter_float
@@ -170,8 +170,9 @@ class OtodomOffer(Offer):
 
     def _get_offer_price_meter(self):
         """ Get price per square meter """
-        offer_price_meter = self.offer_wrapper.find(
-            'div', {'class': 'css-18q4l99'}).text
+        offer_price_meter = self.offer_wrapper.find_all(
+            lambda tag: tag.name == 'div' and re.search(
+                re.compile('z\u0142/m'), tag.text))[-1].text
         offer_price_meter_float = float(
             re.sub(r'[^\d\.]', '', offer_price_meter))
         return offer_price_meter_float

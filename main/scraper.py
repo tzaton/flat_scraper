@@ -58,11 +58,9 @@ class OLXScraper(Scraper):
     def run(self):
         """ Run scraper """
         logging.info(
-            f"Running OLX Scraper for selected filters:\n{pformat(
-                self.filters_selected)}")
+            f"Running OLX Scraper for selected filters:\n{pformat(self.filters_selected)}")
         self.filter_processor.get_url_params()
 
-        offer_counter = 0  # count browsed offers
         for p in self.filter_processor.url_params:
             k = 1  # start on first page
             while True:
@@ -96,7 +94,6 @@ class OLXScraper(Scraper):
                             pass  # Skip incorrect domains
                             logging.exception(e, exc_info=True)
                         logging.debug(offer_pars)
-                        offer_counter += 1
                         self.offer_data.append(offer_pars)
                 k += 1
-        logging.info(f"{offer_counter} flat offers have been browsed")
+        logging.info(f"{len(self.offer_data)} flat offers have been browsed")

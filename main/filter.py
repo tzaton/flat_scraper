@@ -42,7 +42,7 @@ class OLXFilter:
                 filter_name = filter_item.find(
                     'span', {'class': 'header block'}).text
                 filter_name = filter_name.replace(
-                    b'\xc2\xb2'.decode('utf-8'), '2')  # Replace square meters
+                    '\u00B2', '2')  # Replace square meters
                 multiparam = filter_item.find(
                     'input', {'class': re.compile('defaultval')})
                 if multiparam:
@@ -198,8 +198,7 @@ class OLXFilter:
                     param_dict.update(self._process_filter(name, vals))
             self.url_params.append(param_dict)
         logging.info(
-            f"Following parameters will be passed to URL:\n{pformat(
-                self.url_params)}")
+            f"Following parameters will be passed to URL: \n{pformat(self.url_params)}")
 
     def get_page(self, param_dict, page_number):
         """ Add page number to url """
