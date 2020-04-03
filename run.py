@@ -1,7 +1,10 @@
+""" Run flat scraper """
+
 import logging
 from pathlib import Path
 
 from main.scraper import OLXScraper
+from utils.logging_config import get_log_config
 
 # Define parameters for search
 districts = ['Bemowo', 'Włochy', 'Wola', 'Ursynów', 'Śródmieście',
@@ -18,23 +21,16 @@ selected_filters = {'Umeblowane': 'Tak',
 if __name__ == '__main__':
 
     # Logging configuration
-    log_file = Path(__file__).parent / 'log' / 'flat_scraper.log'
-    log_formatter = logging.Formatter(
-        fmt='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S')
-    sh = logging.StreamHandler()
-    fh = logging.FileHandler(filename=log_file,
-                             mode='w',
-                             encoding='utf-8')
-    sh.setFormatter(log_formatter)
-    fh.setFormatter(log_formatter)
-    logging.basicConfig(level=logging.DEBUG,
-                        handlers=[sh, fh])
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    log_config = "logging.json"
+    get_log_config(log_config)
+    logger = logging.getLogger(__name__)
 
     # Run scraper
-    data_file = Path(__file__).parent / 'data' / "olx_test.json"
-
     scraper = OLXScraper(selected_filters)
     scraper.run()
-    scraper.export_data(data_file)  # Export data
+
+    # Export data
+    data_file = Path('.') / "data" / "scraper_data.json"
+    scraper.export_data(data_file)
+
+    logger.info("Ending execution")

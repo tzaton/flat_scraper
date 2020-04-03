@@ -1,5 +1,7 @@
+""" Parsing advertisement pages """
+
 import locale
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from urllib.parse import urlparse
 
 import bs4

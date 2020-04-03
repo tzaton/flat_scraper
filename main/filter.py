@@ -1,14 +1,20 @@
+""" Managing search filters """
+
+import logging
 import re
 import urllib.parse
-import logging
 from pprint import pformat
 
 import requests
 from bs4 import BeautifulSoup
 
+# logger
+logger = logging.getLogger(__name__)
+
 
 class OLXFilter:
     """ Manage website filters for OLX """
+
     BASE_URL = "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa/"
     BASE_SITE = requests.get(BASE_URL)
     BASE_CONTENT = BeautifulSoup(BASE_SITE.text, 'lxml')
@@ -27,11 +33,12 @@ class OLXFilter:
         self.filters.update(self._get_filters_photos())
         self.filters.update(self._get_filters_order())
         self.filters.update(self._get_filters_page())
-        logging.info(
+        logger.debug(
             f"Available filters for www.olx.pl are:\n{pformat(self.filters)}")
 
     def _get_filters_main(self):
         """ Get filters from frame """
+
         filters = {}
         for param in self.BASE_CONTENT.find(
             class_="clr multifilters subSelectActive").find_all(
@@ -40,7 +47,7 @@ class OLXFilter:
             for filter_item in param.find_all('div', {'class': re.compile(
                     'filter-item')}):
                 filter_name = filter_item.find(
-                    'span', {'class': 'header block'}).text
+                    'span', {'class': 'header block'}).text.strip()
                 filter_name = filter_name.replace(
                     '\u00B2', '2')  # Replace square meters
                 multiparam = filter_item.find(
@@ -141,7 +148,7 @@ class OLXFilter:
             filter_dict[filter_key] = filter_value
         else:
             if vals:  # if filter value is set
-                if isinstance(vals, str) or isinstance(vals, int):
+                if isinstance(vals, (str, int)):
                     if self.filters[name].get('values'):
                         if isinstance(self.filters[name]['values'], dict):
                             filter_value = self.filters[name]['values'][vals]
@@ -153,7 +160,7 @@ class OLXFilter:
                         filter_value = vals
                         filter_key = self.filters[name]['param']
                     filter_dict[filter_key] = filter_value
-                elif isinstance(vals, list) or isinstance(vals, tuple):
+                elif isinstance(vals, (list, tuple)):
                     for vo, vi in enumerate(vals):
                         filter_value = self.filters[name]['values'][vi]
                         filter_key = self.filters[name]['param'].format(
@@ -197,7 +204,7 @@ class OLXFilter:
                 if name != 'Dzielnica':
                     param_dict.update(self._process_filter(name, vals))
             self.url_params.append(param_dict)
-        logging.info(
+        logger.debug(
             f"Following parameters will be passed to URL: \n{pformat(self.url_params)}")
 
     def get_page(self, param_dict, page_number):

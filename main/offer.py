@@ -1,3 +1,5 @@
+""" Parsing offer pages """
+
 import re
 
 import bs4
