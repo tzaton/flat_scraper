@@ -44,20 +44,23 @@ class OLXFilter:
             class_="clr multifilters subSelectActive").find_all(
                 class_=re.compile("param param(Select|Float)")):
             filter_code = param['data-name']
-            for filter_item in param.find_all('div', {'class': re.compile(
-                    'filter-item')}):
-                filter_name = filter_item.find(
-                    'span', {'class': 'header block'}).text.strip()
-                filter_name = filter_name.replace(
-                    '\u00B2', '2')  # Replace square meters
-                multiparam = filter_item.find(
-                    'input', {'class': re.compile('defaultval')})
-                if multiparam:
-                    filter_code = re.search(
-                        self.SEARCH_PATTERN, multiparam['class'][2]).group()
-                else:
-                    filter_code = filter_code.replace('[]', '[{param_order}]')
+            filter_name = param.find('div', class_="filter-headline").text.strip().replace(
+                '\u00B2', '2')  # Replace square meters
+            if param.find('div', class_='filter-both-item'):
+                multifilter = True
+            else:
+                multifilter = False
+                filter_code = filter_code.replace('[]', '[{param_order}]')
                 filters[filter_name] = {'param': filter_code}
+            if multifilter:
+                for filter_item in param.find_all('div', {'class': re.compile(
+                        'filter-item')}):
+                    filter_name_add = filter_item.find(
+                        'span', class_='header block').text
+                    filter_name_full = f"{filter_name} {filter_name_add}"
+                    filter_code = re.search(self.SEARCH_PATTERN, filter_item.find(
+                        'input', {'class': re.compile('defaultval')})['class'][2]).group()
+                    filters[filter_name_full] = {'param': filter_code}
 
         # Assign values for parameters (collected manually)
         filters['Rodzaj zabudowy']['values'] = {'Blok': 'blok',
@@ -122,13 +125,8 @@ class OLXFilter:
 
     def _get_filters_order(self):
         """ Get order (newest first) filter """
-        order = {'Sortuj: Najnowsze': {'param': re.search(self.SEARCH_PATTERN,
-                                                          urllib.parse.unquote(
-                                                              self.BASE_CONTENT.find(
-                                                                  'a', {'data-type': 'created_at:desc'})[
-                                                                  'data-url'])).group(),
-                                       'values': urllib.parse.unquote(self.BASE_CONTENT.find(
-                                           'a', {'data-type': 'created_at:desc'})['data-url']).split('=')[-1]}}
+        order = {'Sortuj: Najnowsze': {'param': 'search[order]',
+                                       'values': 'created_at:desc'}}
         return order
 
     @staticmethod

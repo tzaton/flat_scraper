@@ -17,7 +17,7 @@
         },
         "file_handler": {
             "class": "logging.handlers.RotatingFileHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "simple",
             "filename": "log/flat_scraper.log",
             "mode": "w+",
@@ -25,26 +25,13 @@
         }
     },
     "loggers": {
-        "main": {
-            "level": "INFO",
+        "": {
+            "level": "DEBUG",
             "handlers": [
-                "file_handler"
-            ],
-            "propagate": false
-        },
-        "__main__": {
-            "level": "INFO",
-            "handlers": [
-                "file_handler"
+                "file_handler",
+                "console"
             ],
             "propagate": false
         }
-    },
-    "root": {
-        "level": "INFO",
-        "handlers": [
-            "console",
-            "file_handler"
-        ]
     }
 }
