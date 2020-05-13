@@ -12,7 +12,7 @@ districts = ['Bemowo', 'Włochy', 'Wola', 'Ursynów', 'Śródmieście',
 
 selected_filters = {'Umeblowane': 'Tak',
                     'Liczba pokoi': ('2 pokoje', '3 pokoje'),
-                    'Cena do': '500000',
+                    'Cena do': '700000',
                     'Dzielnica': districts,
                     'Pow. od': '40'
                     }
@@ -32,5 +32,6 @@ if __name__ == '__main__':
     # Export data
     data_file = Path('.') / "data" / "scraper_data.json"
     scraper.export_data(data_file)
+    flat_data = scraper.read_data(data_file)
 
     logger.info("Ending execution")

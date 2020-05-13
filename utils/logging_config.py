@@ -10,3 +10,5 @@ def get_log_config(conf_file):
     if not os.path.exists('log'):
         os.mkdir('log')
     logging.config.dictConfig(config)
+    # disable urllib3 DEBUG messages
+    logging.getLogger("urllib3").setLevel(logging.WARNING)

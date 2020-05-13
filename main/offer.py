@@ -29,47 +29,39 @@ class Offer:
 
     def get_offer_params(self):
         """ Get parameters of offer if found """
-        if self._get_offer_price_meter():
-            self.offer_params['price_meter'] = self._get_offer_price_meter()
-        if self._get_offer_area():
-            self.offer_params['area'] = self._get_offer_area()
-        if self._get_offer_furniture():
-            self.offer_params['furniture'] = self._get_offer_furniture()
-        if self._get_offer_owner():
-            self.offer_params['owner'] = self._get_offer_owner()
-        if self._get_offer_floor():
-            self.offer_params['floor'] = self._get_offer_floor()
-        if self._get_offer_nrooms():
-            self.offer_params['nrooms'] = self._get_offer_nrooms()
-        if self._get_offer_market():
-            self.offer_params['market'] = self._get_offer_market()
-        if self._get_offer_buildtype():
-            self.offer_params['building_type'] = self._get_offer_buildtype()
+        self.offer_params['price_meter'] = self._get_offer_price_meter()
+        self.offer_params['area'] = self._get_offer_area()
+        self.offer_params['furniture'] = self._get_offer_furniture()
+        self.offer_params['owner'] = self._get_offer_owner()
+        self.offer_params['floor'] = self._get_offer_floor()
+        self.offer_params['nrooms'] = self._get_offer_nrooms()
+        self.offer_params['market'] = self._get_offer_market()
+        self.offer_params['building_type'] = self._get_offer_buildtype()
 
     # Methods overwritten by child class
     def _get_offer_price_meter(self):
-        pass
+        return None
 
     def _get_offer_area(self):
-        pass
+        return None
 
     def _get_offer_furniture(self):
-        pass
+        return None
 
     def _get_offer_owner(self):
-        pass
+        return None
 
     def _get_offer_floor(self):
-        pass
+        return None
 
     def _get_offer_nrooms(self):
-        pass
+        return None
 
     def _get_offer_market(self):
-        pass
+        return None
 
     def _get_offer_buildtype(self):
-        pass
+        return None
 
 
 class OLXOffer(Offer):
@@ -80,11 +72,8 @@ class OLXOffer(Offer):
 
     def _get_param_value(self, par_name):
         """ Find parameter by name """
-        try:
-            par_value = self.offer_wrapper.find(
-                'th', text=par_name).find_next_sibling().text.strip()
-        except AttributeError:
-            par_value = None
+        par_value = self.offer_wrapper.find(
+            'span', class_="offer-details__name", text=par_name).find_next_sibling().text.strip()
         return par_value
 
     def _get_offer_price_meter(self):
@@ -119,7 +108,7 @@ class OLXOffer(Offer):
         offer_floor = self._get_param_value('Poziom')
         if offer_floor == 'Suterena':
             offer_floor_encoded = '-1'
-        elif offer_floor == 'Partner':
+        elif offer_floor == 'Parter':
             offer_floor_encoded = '0'
         elif offer_floor == 'Powyżej 10':
             offer_floor_encoded = '>10'
@@ -157,7 +146,7 @@ class OLXOffer(Offer):
             building_type_encoded = 'Tenement'
         elif building_type == 'Apartamentowiec':
             building_type_encoded = 'Apartment'
-        elif building_type == 'Pozostałe':
+        elif building_type is not None:
             building_type_encoded = 'Other'
         else:
             building_type_encoded = building_type
@@ -174,7 +163,7 @@ class OtodomOffer(Offer):
         """ Get price per square meter """
         offer_price_meter = self.offer_wrapper.find_all(
             lambda tag: tag.name == 'div' and re.search(
-                re.compile('z\u0142/m'), tag.text))[-1].text
+                re.compile(r'\d+ z\u0142/m'), tag.text))[-1].text
         offer_price_meter_float = float(
             re.sub(r'[^\d\.]', '', offer_price_meter))
         return offer_price_meter_float
@@ -187,6 +176,7 @@ class OtodomOffer(Offer):
         par_value = param_table.find(
             lambda tag: tag.name == 'li' and re.search(
                 par_pattern, tag.text)).text
+        par_value = re.sub(par_name, '', par_value).replace(':', '').strip()
         return par_value
 
     def _get_offer_area(self):
@@ -207,3 +197,29 @@ class OtodomOffer(Offer):
         nrooms = self._get_param_value('Liczba pokoi')
         nrooms_encoded = re.sub(r'[^\d\.]', '', nrooms)
         return nrooms_encoded
+
+    def _get_offer_floor(self):
+        """ Get offer floor number """
+        floor = self._get_param_value('Piętro')
+        if floor == 'parter':
+            floor_encoded = '0'
+        elif floor == '> 10':
+            floor_encoded = '>10'
+        else:
+            floor_encoded = floor
+        return floor_encoded
+
+    def _get_offer_buildtype(self):
+        """ Get offer building type """
+        building_type = self._get_param_value('Rodzaj zabudowy')
+        if building_type == 'blok':
+            building_type_encoded = 'Block'
+        elif building_type == 'kamienica':
+            building_type_encoded = 'Tenement'
+        elif building_type == 'apartamentowiec':
+            building_type_encoded = 'Apartment'
+        elif building_type is not None:
+            building_type_encoded = 'Other'
+        else:
+            building_type_encoded = building_type
+        return building_type_encoded

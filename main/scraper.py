@@ -6,6 +6,7 @@ import re
 from pprint import pformat
 from urllib.parse import urlparse
 
+import pandas as pd
 import requests
 
 from main.ad import OLXAd, get_ads
@@ -22,10 +23,13 @@ class Scraper:
     def __init__(self, base_url):
         self.base_url = base_url
         self.domain = urlparse(self.base_url).netloc
-        self.invalid_url = (fr"^{self.base_url}$",
-                            fr"^{self.base_url}\?page=\d+$")  # ULRs to skip
+        self.invalid_url = [fr"^{self.base_url}$",
+                            fr"^{self.base_url}\?page=\d+$"]  # ULRs to skip
 
         self.offer_data = []  # store offer parameters
+
+        self.offer_processors = {'www.olx.pl': OLXOffer,
+                                 'www.otodom.pl': OtodomOffer}
 
     def check_url(self, url):
         """ Check if URL for list of ads is valid """
@@ -45,6 +49,12 @@ class Scraper:
                       default=str, sort_keys=True)
         logger.info(f"Offer data has been saved into file: {data_file}")
 
+    def read_data(self, data_file):
+        """ Read flat data """
+        flat_data = pd.read_json(data_file)
+        logger.info(f"\n{flat_data.head()}")
+        return flat_data
+
 
 class OLXScraper(Scraper):
     """ Flat scraper for OLX """
@@ -57,8 +67,6 @@ class OLXScraper(Scraper):
         self.filter_processor = OLXFilter(self.filters_selected)
         self.filter_processor.get_filters()
         self.ad_processor = OLXAd
-        self.offer_processors = {'www.olx.pl': OLXOffer,
-                                 'www.otodom.pl': OtodomOffer}
 
     def run(self):
         """ Run scraper """
@@ -96,7 +104,6 @@ class OLXScraper(Scraper):
                             # Collect all found parameters
                             offer_pars.update(offer.offer_params)
                         except Exception as e:
-                            pass  # Skip incorrect domains
                             logger.exception(e, exc_info=True)
                         logger.debug(offer_pars)
                         self.offer_data.append(offer_pars)
