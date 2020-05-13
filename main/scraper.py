@@ -6,6 +6,7 @@ import re
 from pprint import pformat
 from urllib.parse import urlparse
 
+import pandas as pd
 import requests
 
 from main.ad import OLXAd, get_ads
@@ -47,6 +48,12 @@ class Scraper:
             json.dump(self.offer_data, f, indent=4,
                       default=str, sort_keys=True)
         logger.info(f"Offer data has been saved into file: {data_file}")
+
+    def read_data(self, data_file):
+        """ Read flat data """
+        flat_data = pd.read_json(data_file)
+        logger.info(f"\n{flat_data.head()}")
+        return flat_data
 
 
 class OLXScraper(Scraper):
