@@ -80,11 +80,8 @@ class OLXOffer(Offer):
 
     def _get_param_value(self, par_name):
         """ Find parameter by name """
-        try:
-            par_value = self.offer_wrapper.find(
-                'th', text=par_name).find_next_sibling().text.strip()
-        except AttributeError:
-            par_value = None
+        par_value = self.offer_wrapper.find(
+            'span', class_="offer-details__name", text=par_name).find_next_sibling().text.strip()
         return par_value
 
     def _get_offer_price_meter(self):
@@ -174,7 +171,7 @@ class OtodomOffer(Offer):
         """ Get price per square meter """
         offer_price_meter = self.offer_wrapper.find_all(
             lambda tag: tag.name == 'div' and re.search(
-                re.compile('z\u0142/m'), tag.text))[-1].text
+                re.compile(r'\d+ z\u0142/m'), tag.text))[-1].text
         offer_price_meter_float = float(
             re.sub(r'[^\d\.]', '', offer_price_meter))
         return offer_price_meter_float
