@@ -1,9 +1,12 @@
 """ Parsing offer pages """
 
+import logging
 import re
 
 import bs4
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 def get_offer(domain: str, offer_response: requests.models.Response):
@@ -29,14 +32,53 @@ class Offer:
 
     def get_offer_params(self):
         """ Get parameters of offer if found """
-        self.offer_params['price_meter'] = self._get_offer_price_meter()
-        self.offer_params['area'] = self._get_offer_area()
-        self.offer_params['furniture'] = self._get_offer_furniture()
-        self.offer_params['owner'] = self._get_offer_owner()
-        self.offer_params['floor'] = self._get_offer_floor()
-        self.offer_params['nrooms'] = self._get_offer_nrooms()
-        self.offer_params['market'] = self._get_offer_market()
-        self.offer_params['building_type'] = self._get_offer_buildtype()
+        try:
+            self.offer_params['price_meter'] = self._get_offer_price_meter()
+        except Exception as e:
+            logger.exception(e)
+            logger.error(f"Parameter `price_meter` not found")
+
+        try:
+            self.offer_params['area'] = self._get_offer_area()
+        except Exception as e:
+            logger.exception(e)
+            logger.error(f"Parameter `area` not found")
+
+        try:
+            self.offer_params['furniture'] = self._get_offer_furniture()
+        except Exception as e:
+            logger.exception(e)
+            logger.error(f"Parameter `furniture` not found")
+
+        try:
+            self.offer_params['owner'] = self._get_offer_owner()
+        except Exception as e:
+            logger.exception(e)
+            logger.error(f"Parameter `owner` not found")
+
+        try:
+            self.offer_params['floor'] = self._get_offer_floor()
+        except Exception as e:
+            logger.exception(e)
+            logger.error(f"Parameter `floor` not found")
+
+        try:
+            self.offer_params['nrooms'] = self._get_offer_nrooms()
+        except Exception as e:
+            logger.exception(e)
+            logger.error(f"Parameter `nrooms` not found")
+
+        try:
+            self.offer_params['market'] = self._get_offer_market()
+        except Exception as e:
+            logger.exception(e)
+            logger.error(f"Parameter `market` not found")
+
+        try:
+            self.offer_params['building_type'] = self._get_offer_buildtype()
+        except Exception as e:
+            logger.exception(e)
+            logger.error(f"Parameter `building_type` not found")
 
     # Methods overwritten by child class
     def _get_offer_price_meter(self):
@@ -73,7 +115,8 @@ class OLXOffer(Offer):
     def _get_param_value(self, par_name):
         """ Find parameter by name """
         par_value = self.offer_wrapper.find(
-            'span', class_="offer-details__name", text=par_name).find_next_sibling().text.strip()
+            'span', class_="offer-details__name", text=par_name)\
+                .find_next_sibling().text.strip()
         return par_value
 
     def _get_offer_price_meter(self):
