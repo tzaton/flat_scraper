@@ -1,8 +1,8 @@
 # Real estate market data scraper
-Get and analyze data on real estate sale offers in Warsaw.
+Get and analyze data on real estate sale offers in Warsaw, Poland.
 
 ## Project description
- Using this package you can get the latest flat sales offers from Warsaw selected according to your preferences. The data is collected from popular advertising portals (see [Supported platforms](#Supported%20platforms)) and saved for browsing or further analysis.
+ Using this package you can get the latest flat sales offers from Warsaw selected according to your preferences. The data is collected from popular advertising portals (see [Supported platforms](#Supported-platforms)) and saved for browsing or further analysis.
 
 ## Supported platforms
 - [x] olx.pl
@@ -13,6 +13,9 @@ Get and analyze data on real estate sale offers in Warsaw.
 .
 |-- README.md
 |-- __init__.py
+|-- img
+|   |-- price_hist.png
+|   `-- price_median.png
 |-- logging.json
 |-- main
 |   |-- __init__.py
@@ -25,6 +28,7 @@ Get and analyze data on real estate sale offers in Warsaw.
 |       |-- filter.py
 |       |-- offer.py
 |       `-- scraper.py
+|-- requirements.txt
 |-- run.py
 `-- utils
     |-- __init__.py
@@ -87,6 +91,13 @@ In `run.py` file you can find an example usage of this package.
 ### Note
 - By default log files are stored in *log/*. See `run.py`
 - By default data files are stored in *data/*. See `run.py`
+
+## Example output
+- Price histogram
+    ![Price histogram](img/price_hist.png?raw=true "Price histogram")
+- Price median per district
+    ![Price median](img/price_median.png?raw=true "Price median")
+
 
 ## Prerequisites
 See dependencies for a conda environment in `requirements.txt`.
