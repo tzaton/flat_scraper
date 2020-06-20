@@ -24,7 +24,13 @@ class OfferAnalyzer:
 
     def get_price_summary(self):
         """Summarize price (total and per meter)
+            Calculate descriptive statistics and plot histograms
         """
+        price_summary = self.offer_data.loc[:, ['price', 'price_meter']].describe()
+        price_summary.columns = ['Price', 'Price/m\u00B2']
+        with pd.option_context('precision', 2):
+            logger.info(f"\n{price_summary}")
+
         fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
         plt.subplot(2, 1, 1)
         self._plot_price_histogram(self.offer_data['price'],
@@ -35,17 +41,21 @@ class OfferAnalyzer:
         self._plot_price_histogram(self.offer_data['price_meter'],
                                    title="Price/m\u00B2 distribution",
                                    x_tick_interval=1000,
-                                   color="darkcyan")
+                                   color="sienna")
         plt.tight_layout()
         plt.show(block=False)
         plt.show()
+
+        return price_summary
 
     @staticmethod
     def _plot_price_histogram(price_data, title, x_tick_interval, **kwargs):
         price_data = price_data.dropna()
         with plt.style.context('bmh'):
             n_bins = 20
-            ax = price_data.hist(bins=n_bins, alpha=0.7, **kwargs)
+            ax = price_data.hist(bins=n_bins, alpha=0.9, **kwargs)
+
+            ax.grid(linewidth=0.5)
 
             plt.title(title)
             plt.xlabel("price")
