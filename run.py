@@ -8,13 +8,13 @@ from main.scraper import OLXScraper
 from utils.logging_config import get_log_config
 
 # Define parameters for search
-districts = ['Bemowo', 'Włochy', 'Wola', 'Ursynów', 'Śródmieście']
+districts = ['Bemowo', 'Włochy', 'Wola', 'Ursynów', 'Śródmieście', 'Ochota', 'Mokotów']
 
 selected_filters = {'Umeblowane': 'Tak',
                     'Liczba pokoi': ('2 pokoje', '3 pokoje'),
-                    'Cena do': '600000',
+                    'Cena do': '700000',
                     'Dzielnica': districts,
-                    'Pow. od': '50'
+                    'Pow. od': '35'
                     }
 
 # Run scraper
@@ -26,12 +26,12 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
 
     # Run scraper
-    scraper = OLXScraper(selected_filters)
-    scraper.run()
+    # scraper = OLXScraper(selected_filters)
+    # scraper.run()
 
     # Export data
     data_file = Path('.') / "data" / "scraper_data.json"
-    scraper.export_data(data_file)
+    # scraper.export_data(data_file)
 
     # Read and analyze data
     ofan = OfferAnalyzer(data_file)
