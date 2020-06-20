@@ -75,7 +75,7 @@ In `run.py` file you can find an example usage of this package.
    data_file = Path('.') / "data" / "scraper_data.json"
    scraper.export_data(data_file)
    ```
-3. Read collected data and run price analysis. The results are pandas Dataframes and plots.
+3. Read collected data and run price analysis. The results are pandas DataFrames and plots.
 ```python
     # Read and analyze data
     ofan = OfferAnalyzer(data_file)
@@ -84,9 +84,15 @@ In `run.py` file you can find an example usage of this package.
     ofan.show_plots()
 ```
 
+### Note
+- By default log files are stored in *log/*. See `run.py`
+- By default data files are stored in *data/*. See `run.py`
+
 ## Prerequisites
+See dependencies for a conda environment in `requirements.txt`.
+
 Polish locale has to be installed.
-### Ubuntu
+#### Ubuntu
 ```bash
 sudo apt-get install language-pack-pl
 ```
