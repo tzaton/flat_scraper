@@ -3,17 +3,19 @@
 import logging
 from pathlib import Path
 
-from main.analyzer import OfferAnalyzer
-from main.scraper import OLXScraper
+from main.analysis.analyzer import OfferAnalyzer
+from main.webscraping.scraper import OLXScraper
 from utils.logging_config import get_log_config
 
 # Define parameters for search
-districts = ['Bemowo', 'Włochy', 'Wola', 'Ursynów', 'Śródmieście', 'Ochota', 'Mokotów']
+# See available filters and values
+# on https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa/
 
 selected_filters = {'Umeblowane': 'Tak',
                     'Liczba pokoi': ('2 pokoje', '3 pokoje'),
                     'Cena do': '700000',
-                    'Dzielnica': districts,
+                    'Dzielnica': ['Bemowo', 'Włochy', 'Wola', 'Ursynów',
+                                  'Śródmieście', 'Ochota', 'Mokotów'],
                     'Pow. od': '40'
                     }
 
@@ -37,4 +39,6 @@ if __name__ == '__main__':
     ofan = OfferAnalyzer(data_file)
     price_summary = ofan.get_price_summary()
     price_district_summary = ofan.get_price_district_summary()
+    ofan.show_plots()
+
     logger.info("Ending execution")

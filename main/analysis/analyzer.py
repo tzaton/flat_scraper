@@ -19,7 +19,7 @@ class OfferAnalyzer:
         self.offer_datafile = offer_datafile
         # Read flat data
         self.offer_data = pd.read_json(offer_datafile)
-        logger.info(f"Loaded data from file: {self.offer_datafile}")
+        logger.info(f"Loaded data from file: {Path(self.offer_datafile).resolve()}")
         logger.debug(f"Offer data:\n{self.offer_data.head()}")
         logger.debug(
             f"Available columns are: {', '.join(self.offer_data.columns)}")
@@ -51,8 +51,6 @@ class OfferAnalyzer:
                                    x_tick_interval=1000,
                                    color="sienna")
         plt.tight_layout()
-        plt.show(block=False)
-        plt.show()
 
         return price_summary
 
@@ -128,13 +126,22 @@ class OfferAnalyzer:
         self._plot_price_by_district(
             price_district_summary, 'Price/m\u00B2', 1000, color="sienna")
         plt.tight_layout()
-        plt.show(block=False)
-        plt.show()
 
         return price_district_summary
 
     @staticmethod
     def _plot_price_by_district(price_data, column_name, x_tick_interval, **kwargs):
+        """Plot price median by district
+
+        Parameters
+        ----------
+        price_data : pd.DataFrame
+            price summary grouped by district
+        column_name : str
+            Column from dataframe to plot
+        x_tick_interval : int
+            interval for x axis
+        """
         chart_data = price_data.loc[:, (column_name, '50%')].sort_values()
         with plt.style.context('bmh'):
             ax = chart_data.plot.barh(**kwargs)
@@ -147,3 +154,10 @@ class OfferAnalyzer:
             ax.xaxis.set_major_locator(
                 ticker.MultipleLocator(base=x_tick_interval))
             ax.xaxis.set_major_formatter(ticker.StrMethodFormatter('{x:,.0f}'))
+
+    @staticmethod
+    def show_plots():
+        """Show plots
+        """
+        plt.show(block=False)
+        plt.show()

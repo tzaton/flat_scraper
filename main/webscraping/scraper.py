@@ -5,13 +5,14 @@ import logging
 import re
 from pprint import pformat
 from urllib.parse import urlparse
+from pathlib import Path
 
 import pandas as pd
 import requests
 
-from main.ad import OLXAd, get_ads
-from main.filter import OLXFilter
-from main.offer import OLXOffer, OtodomOffer, get_offer
+from main.webscraping.ad import OLXAd, get_ads
+from main.webscraping.filter import OLXFilter
+from main.webscraping.offer import OLXOffer, OtodomOffer, get_offer
 
 # Logger
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class Scraper:
         with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(self.offer_data, f, indent=4,
                       default=str, sort_keys=True)
-        logger.info(f"Offer data has been saved into file: {data_file}")
+        logger.info(f"Offer data has been saved into file: {Path(data_file).resolve()}")
 
 
 class OLXScraper(Scraper):
