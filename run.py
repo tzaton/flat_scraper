@@ -14,7 +14,7 @@ selected_filters = {'Umeblowane': 'Tak',
                     'Liczba pokoi': ('2 pokoje', '3 pokoje'),
                     'Cena do': '700000',
                     'Dzielnica': districts,
-                    'Pow. od': '35'
+                    'Pow. od': '40'
                     }
 
 # Run scraper
@@ -36,5 +36,5 @@ if __name__ == '__main__':
     # Read and analyze data
     ofan = OfferAnalyzer(data_file)
     price_summary = ofan.get_price_summary()
-
+    price_district_summary = ofan.get_price_district_summary()
     logger.info("Ending execution")

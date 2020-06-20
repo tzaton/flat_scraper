@@ -33,9 +33,10 @@ class OfferAnalyzer:
         pd.DataFrame
             Price descriptive statistics
         """
-        price_summary = self.offer_data.loc[:, ['price', 'price_meter']].describe()
+        price_summary = self.offer_data.loc[:, [
+            'price', 'price_meter']].describe()
         price_summary.columns = ['Price', 'Price/m\u00B2']
-        with pd.option_context('precision', 2):
+        with pd.option_context('precision', 0):
             logger.info(f"\n{price_summary}")
 
         fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
@@ -98,3 +99,51 @@ class OfferAnalyzer:
             # Add number of observations
             plt.text(hist_x.min(), hist_y.max() * 0.9, s=f"Total number of offers={n_obs}",
                      horizontalalignment="left")
+
+    def get_price_district_summary(self):
+        """Summarize price by district
+
+        Returns
+        -------
+        pd.DataFrame
+            Price descriptive statistics grouped by district
+        """
+        # Group by district, sort by median price per meter
+        price_district_summary = self.offer_data.loc[:, [
+            'district', 'price', 'price_meter']].groupby('district').describe()\
+            .sort_values(by=('price_meter', '50%'), ascending=False)
+        price_district_summary.columns.set_levels(
+            ['Price', 'Price/m\u00B2'], level=0, inplace=True)
+
+        # View summary
+        with pd.option_context('precision', 0):
+            logger.info(f"\n{price_district_summary}")
+
+        # Plots
+        fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
+        plt.subplot(2, 1, 1)
+        self._plot_price_by_district(
+            price_district_summary, 'Price', 50000, color="darkcyan")
+        plt.subplot(2, 1, 2)
+        self._plot_price_by_district(
+            price_district_summary, 'Price/m\u00B2', 1000, color="sienna")
+        plt.tight_layout()
+        plt.show(block=False)
+        plt.show()
+
+        return price_district_summary
+
+    @staticmethod
+    def _plot_price_by_district(price_data, column_name, x_tick_interval, **kwargs):
+        chart_data = price_data.loc[:, (column_name, '50%')].sort_values()
+        with plt.style.context('bmh'):
+            ax = chart_data.plot.barh(**kwargs)
+            ax.grid(axis='y')
+
+            plt.title(f"{column_name} median")
+
+            # Format X axis
+            plt.xticks(rotation=45)
+            ax.xaxis.set_major_locator(
+                ticker.MultipleLocator(base=x_tick_interval))
+            ax.xaxis.set_major_formatter(ticker.StrMethodFormatter('{x:,.0f}'))

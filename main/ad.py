@@ -57,6 +57,7 @@ class OLXAd:
         self.ad_params['date'] = self._get_ad_date()
         self.ad_params['price'] = self._get_ad_price()
         self.ad_params['title'] = self._get_ad_title()
+        self.ad_params['district'] = self._get_ad_district()
 
     def _get_ad_type(self):
         """Get advertisement type
@@ -151,3 +152,16 @@ class OLXAd:
         ad_title = self.ad_wrapper.find(
             'a', {'data-cy': 'listing-ad-title'}).text.strip()
         return ad_title
+
+    def _get_ad_district(self):
+        """Get district
+
+        Returns
+        -------
+        str
+            Warsaw district where flat is located
+        """
+        ad_district_with_city = self.ad_wrapper.find(
+            'i', {'data-icon': 'location-filled'}).next_sibling.strip()
+        ad_district = ad_district_with_city.split(',')[1].strip()
+        return ad_district
