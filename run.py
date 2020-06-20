@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+from main.analyzer import OfferAnalyzer
 from main.scraper import OLXScraper
 from utils.logging_config import get_log_config
 
@@ -26,12 +27,15 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
 
     # Run scraper
-    scraper = OLXScraper(selected_filters)
-    scraper.run()
+    # scraper = OLXScraper(selected_filters)
+    # scraper.run()
 
     # Export data
     data_file = Path('.') / "data" / "scraper_data.json"
-    scraper.export_data(data_file)
-    flat_data = scraper.read_data(data_file)
+    # scraper.export_data(data_file)
+
+    # Read and analyze data
+    ofan = OfferAnalyzer(data_file)
+    ofan.get_price_summary()
 
     logger.info("Ending execution")

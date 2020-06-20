@@ -49,12 +49,6 @@ class Scraper:
                       default=str, sort_keys=True)
         logger.info(f"Offer data has been saved into file: {data_file}")
 
-    def read_data(self, data_file):
-        """ Read flat data """
-        flat_data = pd.read_json(data_file)
-        logger.info(f"\n{flat_data.head()}")
-        return flat_data
-
 
 class OLXScraper(Scraper):
     """ Flat scraper for OLX """
