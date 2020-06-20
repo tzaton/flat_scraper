@@ -32,7 +32,13 @@ class Scraper:
                                  'www.otodom.pl': OtodomOffer}
 
     def check_url(self, url):
-        """ Check if URL for list of ads is valid """
+        """Check if URL for list of ads is valid
+
+        Returns
+        -------
+        int
+            URL validflag (0/1)
+        """
         valid_flag = 1
         for u in self.invalid_url:
             if re.search(u, url):
@@ -43,7 +49,13 @@ class Scraper:
         return valid_flag
 
     def export_data(self, data_file):
-        """ Save collected offer data into .json file"""
+        """Save collected offer data into .json file
+
+        Parameters
+        ----------
+        data_file : str
+            path to json file where offer data will be saved
+        """
         with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(self.offer_data, f, indent=4,
                       default=str, sort_keys=True)

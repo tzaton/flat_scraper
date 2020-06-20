@@ -11,7 +11,25 @@ from utils.set_locale import set_locale
 
 
 def get_ads(domain: str, ads_response: requests.models.Response):
-    """ Get HTML for ads """
+    """Get HTML for ads
+
+    Parameters
+    ----------
+    domain : str
+        Domain with flat advertisements, e.g. www.olx.pl
+    ads_response : requests.models.Response
+        response from page with advertisements
+
+    Returns
+    -------
+    bs4.element.ResultSet
+        raw data with advertisements
+
+    Raises
+    ------
+    ValueError
+        If unuspported domain specified
+    """
     if domain == 'www.olx.pl':
         ad_content = bs4.BeautifulSoup(ads_response.text, 'lxml').find(
             'table', {'id': 'offers_table'})
@@ -41,29 +59,59 @@ class OLXAd:
         self.ad_params['title'] = self._get_ad_title()
 
     def _get_ad_type(self):
-        """ Get ad type """
+        """Get advertisement type
+
+        Returns
+        -------
+        str
+            Advertisement type (external/internal)
+        """
         ad_type = self.ad_wrapper['rel'] or 'internal'
         return ad_type
 
     def _get_ad_class(self):
-        """ Get ad class (promoted or not) """
+        """Get ad class (promoted or not)
+
+        Returns
+        -------
+        str
+            Advertisement class (promoted or standard)
+        """
         ad_class = 'promoted' if self.ad_wrapper.find(
             'td', {'class': 'offer promoted '}) else 'standard'
         return ad_class
 
     def _get_ad_link(self):
-        """ Get ad URL """
+        """Get advertisement URL
+
+        Returns
+        -------
+        str
+            Advertisement URL
+        """
         ad_link = self.ad_wrapper.find(
             'a', {'data-cy': 'listing-ad-title'})['href']
         return ad_link
 
     def _get_ad_domain(self):
-        """ Get ad domain """
+        """Get advertisement domain
+
+        Returns
+        -------
+        str
+            Advertisement domain
+        """
         ad_domain = urlparse(self.ad_params['link']).netloc
         return ad_domain
 
     def _get_ad_date(self):
-        """ Get ad date added """
+        """Get advertisement date added
+
+        Returns
+        -------
+        datetime.date
+            Day when advertisement was added
+        """
         ad_date = self.ad_wrapper.find(
             'i', {'data-icon': 'clock'}).next_sibling.strip()
         if ad_date.startswith('dzisiaj'):
@@ -80,14 +128,26 @@ class OLXAd:
         return ad_date_day
 
     def _get_ad_price(self):
-        """ Get ad price (total) """
+        """Get advertisement price
+
+        Returns
+        -------
+        float
+            Price from advertisement (total)
+        """
         ad_price = self.ad_wrapper.find('p', {'class': 'price'}).text.strip()
         ad_price_float = float(ad_price.replace(
             'zł', '').replace(' ', '').replace(',', '.'))
         return ad_price_float
 
     def _get_ad_title(self):
-        """ Get ad title """
+        """Get advertisement title
+
+        Returns
+        -------
+        str
+            Advertisement title
+        """
         ad_title = self.ad_wrapper.find(
             'a', {'data-cy': 'listing-ad-title'}).text.strip()
         return ad_title

@@ -10,7 +10,25 @@ logger = logging.getLogger(__name__)
 
 
 def get_offer(domain: str, offer_response: requests.models.Response):
-    """ Get HTML for offer """
+    """Get offer wrapper (HTML) from offer page
+
+    Parameters
+    ----------
+    domain : str
+        Domain where offer is published e.g. www.olx.pl
+    offer_response : requests.models.Response
+        Response from offer website
+
+    Returns
+    -------
+    bs4.element.Tag
+        raw offer data
+
+    Raises
+    ------
+    ValueError
+        if unsupported domain specified
+    """
     if domain == 'www.olx.pl':
         offer_wrapper = bs4.BeautifulSoup(offer_response.text, 'lxml').find(
             'div', {'class': 'offerdescription clr',
@@ -113,14 +131,31 @@ class OLXOffer(Offer):
         super().__init__(offer_wrapper)
 
     def _get_param_value(self, par_name):
-        """ Find parameter by name """
+        """Find parameter value based on its name
+
+        Parameters
+        ----------
+        par_name : str
+            Offer parameter name
+
+        Returns
+        -------
+        str
+            parameter value for given offer
+        """
         par_value = self.offer_wrapper.find(
             'span', class_="offer-details__name", text=par_name)\
                 .find_next_sibling().text.strip()
         return par_value
 
     def _get_offer_price_meter(self):
-        """ Get price per square meter """
+        """Get price per square meter
+
+        Returns
+        -------
+        float
+            price per square meter
+        """
         offer_price_meter = self._get_param_value(
             'Cena za m\u00B2')
         offer_price_meter_float = float(
@@ -128,26 +163,50 @@ class OLXOffer(Offer):
         return offer_price_meter_float
 
     def _get_offer_area(self):
-        """ Get area """
+        """Get area
+
+        Returns
+        -------
+        float
+            flat area (square meter)
+        """
         offer_area = self._get_param_value('Powierzchnia')
         offer_area_float = float(
             re.sub(r'[^\d\.]', '', offer_area.replace(',', '.')))
         return offer_area_float
 
     def _get_offer_furniture(self):
-        """ Get flag for furniture """
+        """Get flag for furniture
+
+        Returns
+        -------
+        str
+            Furniture flag - Yes (with) / No (without)
+        """
         offer_furniture = self._get_param_value('Umeblowane')
         offer_furniture_flag = 1 if offer_furniture == 'Yes' else 'No'
         return offer_furniture_flag
 
     def _get_offer_owner(self):
-        """ Get offer owner (private/business) """
+        """Get offer owner type
+
+        Returns
+        -------
+        str
+            offer owner (private/business)
+        """
         offer_owner = self._get_param_value('Oferta od')
         offer_owner_encoded = 'Private' if offer_owner == 'Osoby prywatnej' else 'Business'
         return offer_owner_encoded
 
     def _get_offer_floor(self):
-        """ Get offer floor number """
+        """Get floor number
+
+        Returns
+        -------
+        str
+            Floor number
+        """
         offer_floor = self._get_param_value('Poziom')
         if offer_floor == 'Suterena':
             offer_floor_encoded = '-1'
@@ -160,7 +219,13 @@ class OLXOffer(Offer):
         return offer_floor_encoded
 
     def _get_offer_nrooms(self):
-        """ Get offer number of rooms """
+        """Get number of rooms
+
+        Returns
+        -------
+        str
+            number of rooms in the flat
+        """
         nrooms = self._get_param_value('Liczba pokoi')
         if nrooms == '1 pokój':
             nrooms_encoded = '1'
@@ -175,13 +240,25 @@ class OLXOffer(Offer):
         return nrooms_encoded
 
     def _get_offer_market(self):
-        """ Get offer market (primary/secondary) """
+        """Get market
+
+        Returns
+        -------
+        str
+            Market (primary/secondary)
+        """
         market = self._get_param_value('Rynek')
         market_encoded = 'Primary' if market == 'Pierwotny' else 'Secondary'
         return market_encoded
 
     def _get_offer_buildtype(self):
-        """ Get offer building type """
+        """Get building type
+
+        Returns
+        -------
+        str
+            building type
+        """
         building_type = self._get_param_value('Rodzaj zabudowy')
         if building_type == 'Blok':
             building_type_encoded = 'Block'
@@ -203,7 +280,13 @@ class OtodomOffer(Offer):
         super().__init__(offer_wrapper)
 
     def _get_offer_price_meter(self):
-        """ Get price per square meter """
+        """Get price per square meter
+
+        Returns
+        -------
+        float
+            price per square meter
+        """
         offer_price_meter = self.offer_wrapper.find_all(
             lambda tag: tag.name == 'div' and re.search(
                 re.compile(r'\d+ z\u0142/m'), tag.text))[-1].text
@@ -212,7 +295,18 @@ class OtodomOffer(Offer):
         return offer_price_meter_float
 
     def _get_param_value(self, par_name):
-        """ Find parameter by name """
+        """Find parameter value based on its name
+
+        Parameters
+        ----------
+        par_name : str
+            Offer parameter name
+
+        Returns
+        -------
+        str
+            parameter value for given offer
+        """
         param_table = self.offer_wrapper.find(
             'section', {'class': 'section-overview'})  # Table with parameters
         par_pattern = re.compile(fr'{par_name}')
@@ -223,26 +317,50 @@ class OtodomOffer(Offer):
         return par_value
 
     def _get_offer_area(self):
-        """ Get area """
+        """Get area
+
+        Returns
+        -------
+        float
+            flat area (square meter)
+        """
         offer_area = self._get_param_value('Powierzchnia')
         offer_area_float = float(
             re.sub(r'[^\d\.]', '', offer_area.replace(',', '.')))
         return offer_area_float
 
     def _get_offer_market(self):
-        """ Get offer market (primary/secondary) """
+        """Get market
+
+        Returns
+        -------
+        str
+            Market (primary/secondary)
+        """
         market = self._get_param_value('Rynek')
         market_encoded = 'Primary' if 'pierwotny' in market else 'Secondary'
         return market_encoded
 
     def _get_offer_nrooms(self):
-        """ Get offer number of rooms """
+        """Get number of rooms
+
+        Returns
+        -------
+        str
+            number of rooms in the flat
+        """
         nrooms = self._get_param_value('Liczba pokoi')
         nrooms_encoded = re.sub(r'[^\d\.]', '', nrooms)
         return nrooms_encoded
 
     def _get_offer_floor(self):
-        """ Get offer floor number """
+        """Get floor number
+
+        Returns
+        -------
+        str
+            Floor number
+        """
         floor = self._get_param_value('Piętro')
         if floor == 'parter':
             floor_encoded = '0'
@@ -253,7 +371,13 @@ class OtodomOffer(Offer):
         return floor_encoded
 
     def _get_offer_buildtype(self):
-        """ Get offer building type """
+        """Get building type
+
+        Returns
+        -------
+        str
+            building type
+        """
         building_type = self._get_param_value('Rodzaj zabudowy')
         if building_type == 'blok':
             building_type_encoded = 'Block'

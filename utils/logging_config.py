@@ -4,7 +4,13 @@ import os
 
 
 def get_log_config(conf_file):
-    """ Load logging configuration from json file """
+    """Configure logging based on config file
+
+    Parameters
+    ----------
+    conf_file : str
+        logging configuration file (.json)
+    """
     with open(conf_file, 'r') as c:
         config = json.load(c)
     if not os.path.exists('log'):

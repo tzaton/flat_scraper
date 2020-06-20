@@ -37,7 +37,13 @@ class OLXFilter:
             f"Available filters for www.olx.pl are:\n{pformat(self.filters)}")
 
     def _get_filters_main(self):
-        """ Get filters from frame """
+        """Get filters from page
+
+        Returns
+        -------
+        dict
+            Dictionary with all available filters
+        """
 
         filters = {}
         for param in self.BASE_CONTENT.find(
@@ -93,7 +99,13 @@ class OLXFilter:
         return filters
 
     def _get_filters_district(self):
-        """ Get district filter """
+        """Get district filter
+
+        Returns
+        -------
+        dict
+            Dictionary with districts for filtering
+        """
         districts = {'Dzielnica': {'param': '', 'values': {}}}
         districts['Dzielnica']['values'] = {d.text: d['href'].split('=')[-1] for d in self.BASE_CONTENT.find_all(
             'a', {'href': re.compile('district_id')})}
@@ -105,7 +117,13 @@ class OLXFilter:
         return districts
 
     def _get_filters_owner(self):
-        """ Get offer owner filter """
+        """Get offer owner filter
+
+        Returns
+        -------
+        dict
+            Dictionary with owner types for filtering
+        """
         owners = {'Właściciel': {'param': '', 'values': {}}}
         owners['Właściciel']['values'] = {[text for text in d.stripped_strings][0]: d['href'].split('=')[-1] for d in
                                           self.BASE_CONTENT.find_all('a', class_='fleft tab tdnone topTabOffer')}
@@ -116,7 +134,13 @@ class OLXFilter:
         return owners
 
     def _get_filters_photos(self):
-        """ Get photo filter """
+        """ Get photo filter
+
+        Returns
+        -------
+        dict
+            Dictionary with photo filter (photo-only)
+        """
         photos = {'Tylko ze zdjęciem': {'param': self.BASE_CONTENT.find(
             'input', id='photo-only')['name'],
             'values': self.BASE_CONTENT.find(
@@ -124,19 +148,49 @@ class OLXFilter:
         return photos
 
     def _get_filters_order(self):
-        """ Get order (newest first) filter """
+        """Get order (newest first) filter
+
+        Returns
+        -------
+        dict
+            Dictionary with search order filter (newest first)
+        """
         order = {'Sortuj: Najnowsze': {'param': 'search[order]',
                                        'values': 'created_at:desc'}}
         return order
 
     @staticmethod
     def _get_filters_page():
-        """ Get page number filter """
+        """Get page number filter
+
+        Returns
+        -------
+        dict
+            Dictionary with page number filter
+        """
         page_number = {'Strona': {'param': 'page'}}
         return page_number
 
     def _process_filter(self, name, vals):
-        """ Get url params for filter """
+        """Get url params for filter
+
+        Parameters
+        ----------
+        name : str
+            filter name
+        vals : str/int or list/tuple
+            filter values
+
+        Returns
+        -------
+        dict
+            Filter parameters to pass to URL
+
+        Raises
+        ------
+        TypeError
+            if invalid type for vals specified
+        """
         filter_dict = {}
         if name == 'Strona':
             pass  # Don't include page number here
@@ -206,7 +260,20 @@ class OLXFilter:
             f"Following parameters will be passed to URL: \n{pformat(self.url_params)}")
 
     def get_page(self, param_dict, page_number):
-        """ Add page number to url """
+        """Add page number to url
+
+        Parameters
+        ----------
+        param_dict : dict
+            Dictionary with filter parameters to pass to URL
+        page_number : int
+            Page number
+
+        Returns
+        -------
+        dict
+            Parameter dictionary updated with page number
+        """
         filter_key = self.filters['Strona']['param']
         filter_value = page_number
         param_dict[filter_key] = filter_value
