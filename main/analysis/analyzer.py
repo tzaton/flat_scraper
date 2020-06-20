@@ -75,6 +75,8 @@ class OfferAnalyzer:
             ax = price_data.hist(bins=n_bins, alpha=0.9, **kwargs)
 
             ax.grid(linewidth=0.5)
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
 
             plt.title(title)
             plt.xlabel("price")
@@ -145,7 +147,10 @@ class OfferAnalyzer:
         chart_data = price_data.loc[:, (column_name, '50%')].sort_values()
         with plt.style.context('bmh'):
             ax = chart_data.plot.barh(**kwargs)
+
             ax.grid(axis='y')
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
 
             plt.title(f"{column_name} median")
 
