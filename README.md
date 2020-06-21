@@ -37,20 +37,23 @@ Get and analyze data on real estate sale offers in Warsaw, Poland.
 ```
 
 ### main/webscraping
-Subpackage responsible for scraping data from the advertising portal.
+Subpackage responsible for scraping data from the advertising portal
 - `filter.py` - get available filters, translate filters into URL, set filters according to user definition
 - `ad.py` - collect information from websites with advertisements (price, date added etc.)
 - `offer.py` - collect information from offers (number of rooms, floor etc.)
 - `scraper.py` - create a scraper to browse the portal and find offers
 
 ### main/analysis
-Subpackage responsible for the analysis of collected flat offer data.
+Subpackage responsible for the analysis of collected flat offer data
 - `analyzer.py` - read offer data, summarize price in total and across districts
 
 ### utils
 Contains small utility functions
 - `logging_config.py` - configure logging from json file. Use another logging configuration if you prefer.
 - `set_locale.py` - change locale within context (used for handling local time definitions)
+
+### img
+Contains example visualizations
 
 
 ## How to use
@@ -80,13 +83,13 @@ In `run.py` file you can find an example usage of this package.
    scraper.export_data(data_file)
    ```
 3. Read collected data and run price analysis. The results are pandas DataFrames and plots.
-```python
+    ```python
     # Read and analyze data
     ofan = OfferAnalyzer(data_file)
     price_summary = ofan.get_price_summary()
     price_district_summary = ofan.get_price_district_summary()
     ofan.show_plots()
-```
+    ```
 
 ### Note
 - By default log files are stored in *log/*. See `run.py`
@@ -101,6 +104,8 @@ In `run.py` file you can find an example usage of this package.
 
 ## Prerequisites
 See dependencies for a conda environment in `requirements.txt`.
+
+### Additional
 
 Polish locale has to be installed.
 #### Ubuntu
