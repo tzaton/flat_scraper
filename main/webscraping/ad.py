@@ -10,7 +10,7 @@ import requests
 from utils.set_locale import set_locale
 
 
-def get_ads(domain: str, ads_response: requests.models.Response):
+def get_ads(domain: str, ads_response: requests.models.Response) -> bs4.element.ResultSet:
     """Get HTML for ads
 
     Parameters
@@ -41,7 +41,7 @@ def get_ads(domain: str, ads_response: requests.models.Response):
     return ad_wrappers
 
 
-class OLXAd:
+class OLXAd(object):
     """ Flat advertisement for OLX """
 
     def __init__(self, ad_wrapper: bs4.element.Tag):

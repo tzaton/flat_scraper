@@ -9,7 +9,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-def get_offer(domain: str, offer_response: requests.models.Response):
+def get_offer(domain: str, offer_response: requests.models.Response) -> bs4.element.Tag:
     """Get offer wrapper (HTML) from offer page
 
     Parameters
@@ -41,7 +41,7 @@ def get_offer(domain: str, offer_response: requests.models.Response):
     return offer_wrapper
 
 
-class Offer:
+class Offer(object):
     """ Flat offer - parent class """
 
     def __init__(self, offer_wrapper: bs4.element.Tag):
@@ -127,7 +127,7 @@ class Offer:
 class OLXOffer(Offer):
     """ Flat offer for OLX """
 
-    def _get_param_value(self, par_name):
+    def _get_param_value(self, par_name: str) -> str:
         """Find parameter value based on its name
 
         Parameters
@@ -288,7 +288,7 @@ class OtodomOffer(Offer):
             re.sub(r'[^\d\.]', '', offer_price_meter))
         return offer_price_meter_float
 
-    def _get_param_value(self, par_name):
+    def _get_param_value(self, par_name: str) -> str:
         """Find parameter value based on its name
 
         Parameters

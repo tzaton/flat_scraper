@@ -1,5 +1,8 @@
-import locale
+"""Manipulate locale (language) settings
+"""
+
 import contextlib
+import locale
 
 
 @contextlib.contextmanager

@@ -1,9 +1,12 @@
+"""Load logging configuration
+"""
+
 import json
 import logging.config
 import os
 
 
-def get_log_config(conf_file):
+def get_log_config(conf_file: str):
     """Configure logging based on config file
 
     Parameters

@@ -17,7 +17,7 @@ class OfferAnalyzer:
     """ Read, analyze and visualize offer data
     """
 
-    def __init__(self, offer_datafile):
+    def __init__(self, offer_datafile: str):
         self.offer_datafile = offer_datafile
         # Read flat data
         self.offer_data = pd.read_json(offer_datafile)
@@ -58,7 +58,10 @@ class OfferAnalyzer:
         return price_summary
 
     @staticmethod
-    def _plot_price_histogram(price_data, title, x_tick_interval, **kwargs):
+    def _plot_price_histogram(price_data: pd.Series,
+                              title: str,
+                              x_tick_interval: int,
+                              **kwargs):
         """ Plot histogram of price
 
         Parameters
@@ -137,7 +140,10 @@ class OfferAnalyzer:
         return price_district_summary
 
     @staticmethod
-    def _plot_price_by_district(price_data, column_name, x_tick_interval, **kwargs):
+    def _plot_price_by_district(price_data: pd.DataFrame,
+                                column_name: str,
+                                x_tick_interval: int,
+                                **kwargs):
         """Plot price median by district
 
         Parameters

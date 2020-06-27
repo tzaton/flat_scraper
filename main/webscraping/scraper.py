@@ -18,10 +18,10 @@ from main.webscraping.offer import OLXOffer, OtodomOffer, get_offer
 logger = logging.getLogger(__name__)
 
 
-class Scraper:
+class Scraper(object):
     """ Flat scraper - parent class """
 
-    def __init__(self, base_url):
+    def __init__(self, base_url: str):
         self.base_url = base_url
         self.domain = urlparse(self.base_url).netloc
         self.invalid_url = [fr"^{self.base_url}$",
@@ -32,13 +32,13 @@ class Scraper:
         self.offer_processors = {'www.olx.pl': OLXOffer,
                                  'www.otodom.pl': OtodomOffer}
 
-    def check_url(self, site):
+    def check_url(self, site: requests.models.Response) -> int:
         """Check if site contains valid ads
 
         Parameters
         ----------
-        site : response from ad website
-            [description]
+        site : requests.models.Response
+            response from ad website
 
         Returns
         -------
@@ -51,6 +51,7 @@ class Scraper:
         if bs4.BeautifulSoup(site.text, 'lxml').find(
                 text="Nie znaleźliśmy ogłoszeń dla tego zapytania."):
             valid_flag = 0
+            return valid_flag
 
         # check URL
         for u in self.invalid_url:
@@ -59,7 +60,7 @@ class Scraper:
                 break
         return valid_flag
 
-    def export_data(self, data_file):
+    def export_data(self, data_file: str):
         """Save collected offer data into .json file
 
         Parameters
@@ -78,7 +79,7 @@ class OLXScraper(Scraper):
     """ Flat scraper for OLX """
     BASE_URL = "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa/"
 
-    def __init__(self, filters_selected):
+    def __init__(self, filters_selected: dict):
         super().__init__(self.BASE_URL)
         logger.info("Starting OLX Scraper")
         self.filters_selected = filters_selected

@@ -21,7 +21,7 @@ selected_filters = {'Umeblowane': 'Tak',
                                   'Ursynów',
                                   'Śródmieście',
                                   'Ochota',
-                                  'Mokotów']
+                                  'Mokotów'],
                     }
 
 # Run scraper

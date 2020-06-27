@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 logger = logging.getLogger(__name__)
 
 
-class OLXFilter:
+class OLXFilter(object):
     """ Manage website filters for OLX """
 
     BASE_URL = "https://www.olx.pl/nieruchomosci/mieszkania/sprzedaz/warszawa/"
@@ -172,7 +172,7 @@ class OLXFilter:
         page_number = {'Strona': {'param': 'page'}}
         return page_number
 
-    def _process_filter(self, name, vals):
+    def _process_filter(self, name: str, vals) -> dict:
         """Get url params for filter
 
         Parameters
@@ -259,7 +259,7 @@ class OLXFilter:
         logger.debug(
             f"Following parameters will be passed to URL: \n{pformat(self.url_params)}")
 
-    def get_page(self, param_dict, page_number):
+    def get_page(self, param_dict: dict, page_number: int) -> dict:
         """Add page number to url
 
         Parameters
