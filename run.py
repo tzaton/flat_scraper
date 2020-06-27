@@ -14,9 +14,14 @@ from utils.logging_config import get_log_config
 selected_filters = {'Umeblowane': 'Tak',
                     'Liczba pokoi': ('2 pokoje', '3 pokoje'),
                     'Cena do': '700000',
-                    'Dzielnica': ['Bemowo', 'Włochy', 'Wola', 'Ursynów',
-                                  'Śródmieście', 'Ochota', 'Mokotów'],
-                    'Pow. od': '40'
+                    'Pow. od': '40',
+                    'Dzielnica': ['Bemowo',
+                                  'Włochy',
+                                  'Wola',
+                                  'Ursynów',
+                                  'Śródmieście',
+                                  'Ochota',
+                                  'Mokotów']
                     }
 
 # Run scraper

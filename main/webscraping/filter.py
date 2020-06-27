@@ -125,7 +125,7 @@ class OLXFilter:
             Dictionary with owner types for filtering
         """
         owners = {'Właściciel': {'param': '', 'values': {}}}
-        owners['Właściciel']['values'] = {[text for text in d.stripped_strings][0]: d['href'].split('=')[-1] for d in
+        owners['Właściciel']['values'] = {list(d.stripped_strings)[0]: d['href'].split('=')[-1] for d in
                                           self.BASE_CONTENT.find_all('a', class_='fleft tab tdnone topTabOffer')}
         owners['Właściciel']['param'] = re.search(self.SEARCH_PATTERN,
                                                   urllib.parse.unquote(
@@ -147,7 +147,8 @@ class OLXFilter:
             'input', id='photo-only')['value']}}
         return photos
 
-    def _get_filters_order(self):
+    @staticmethod
+    def _get_filters_order():
         """Get order (newest first) filter
 
         Returns
@@ -241,8 +242,7 @@ class OLXFilter:
                 for name, vals in filters_applied.items():
                     param_dict.update(self._process_filter(name, vals))
                 self.url_params.append(param_dict)
-            elif isinstance(filters_applied['Dzielnica'], tuple) or \
-                    isinstance(filters_applied['Dzielnica'], list):
+            elif isinstance(filters_applied['Dzielnica'], (tuple, list)):
                 filters_iter = filters_applied.copy()
                 for district in filters_applied['Dzielnica']:
                     filters_iter['Dzielnica'] = district

@@ -127,9 +127,6 @@ class Offer:
 class OLXOffer(Offer):
     """ Flat offer for OLX """
 
-    def __init__(self, offer_wrapper):
-        super().__init__(offer_wrapper)
-
     def _get_param_value(self, par_name):
         """Find parameter value based on its name
 
@@ -275,9 +272,6 @@ class OLXOffer(Offer):
 
 class OtodomOffer(Offer):
     """ Flat offer for Otodom """
-
-    def __init__(self, offer_wrapper):
-        super().__init__(offer_wrapper)
 
     def _get_offer_price_meter(self):
         """Get price per square meter

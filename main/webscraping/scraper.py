@@ -3,11 +3,11 @@
 import json
 import logging
 import re
+from pathlib import Path
 from pprint import pformat
 from urllib.parse import urlparse
-from pathlib import Path
 
-import pandas as pd
+import bs4
 import requests
 
 from main.webscraping.ad import OLXAd, get_ads
@@ -32,8 +32,13 @@ class Scraper:
         self.offer_processors = {'www.olx.pl': OLXOffer,
                                  'www.otodom.pl': OtodomOffer}
 
-    def check_url(self, url):
-        """Check if URL for list of ads is valid
+    def check_url(self, site):
+        """Check if site contains valid ads
+
+        Parameters
+        ----------
+        site : response from ad website
+            [description]
 
         Returns
         -------
@@ -41,12 +46,17 @@ class Scraper:
             URL validflag (0/1)
         """
         valid_flag = 1
+
+        # check content
+        if bs4.BeautifulSoup(site.text, 'lxml').find(
+                text="Nie znaleźliśmy ogłoszeń dla tego zapytania."):
+            valid_flag = 0
+
+        # check URL
         for u in self.invalid_url:
-            if re.search(u, url):
+            if re.search(u, site.url):
                 valid_flag = 0
                 break
-            else:
-                pass
         return valid_flag
 
     def export_data(self, data_file):
@@ -60,7 +70,8 @@ class Scraper:
         with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(self.offer_data, f, indent=4,
                       default=str, sort_keys=True)
-        logger.info(f"Offer data has been saved into file: {Path(data_file).resolve()}")
+        logger.info(
+            f"Offer data has been saved into file: {Path(data_file).resolve()}")
 
 
 class OLXScraper(Scraper):
@@ -86,33 +97,35 @@ class OLXScraper(Scraper):
             while True:
                 pars = self.filter_processor.get_page(p, k)
                 site = requests.get(self.base_url, params=pars)
-                url_validflag = self.check_url(site.url)
+
+                # Check if site is valid, otherwise stop
+                url_validflag = self.check_url(site)
                 if url_validflag == 0:
                     break
-                else:
-                    logger.info(f"Scraping advertisements from: {site.url}")
-                    ads = get_ads(self.domain, site)
-                    for a in ads:
-                        # Get ad processor
-                        ad_processor = self.ad_processor(a)
-                        ad_processor.get_ad_params()  # Get parameters for the advertisement
-                        offer_pars = ad_processor.ad_params
-                        # Access offer site
-                        offer_site = requests.get(
-                            ad_processor.ad_params['link'])
-                        logger.info(
-                            f"Scraping flat offer from: {offer_site.url}")
-                        try:
-                            offer_wrapper = get_offer(
-                                offer_pars['domain'], offer_site)
-                            offer_processor = self.offer_processors[offer_pars['domain']]
-                            offer = offer_processor(offer_wrapper)
-                            offer.get_offer_params()  # Get parameters for the offer
-                            # Collect all found parameters
-                            offer_pars.update(offer.offer_params)
-                        except Exception as e:
-                            logger.exception(e, exc_info=True)
-                        logger.debug(offer_pars)
-                        self.offer_data.append(offer_pars)
+
+                logger.info(f"Scraping advertisements from: {site.url}")
+                ads = get_ads(self.domain, site)
+                for a in ads:
+                    # Get ad processor
+                    ad_processor = self.ad_processor(a)
+                    ad_processor.get_ad_params()  # Get parameters for the advertisement
+                    offer_pars = ad_processor.ad_params
+                    # Access offer site
+                    offer_site = requests.get(
+                        ad_processor.ad_params['link'])
+                    logger.info(
+                        f"Scraping flat offer from: {offer_site.url}")
+                    try:
+                        offer_wrapper = get_offer(
+                            offer_pars['domain'], offer_site)
+                        offer_processor = self.offer_processors[offer_pars['domain']]
+                        offer = offer_processor(offer_wrapper)
+                        offer.get_offer_params()  # Get parameters for the offer
+                        # Collect all found parameters
+                        offer_pars.update(offer.offer_params)
+                    except Exception as e:
+                        logger.exception(e, exc_info=True)
+                    logger.debug(offer_pars)
+                    self.offer_data.append(offer_pars)
                 k += 1
         logger.info(f"{len(self.offer_data)} flat offers have been browsed")

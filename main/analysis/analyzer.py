@@ -4,7 +4,6 @@
 import logging
 from pathlib import Path
 
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
@@ -15,11 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 class OfferAnalyzer:
+    """ Read, analyze and visualize offer data
+    """
+
     def __init__(self, offer_datafile):
         self.offer_datafile = offer_datafile
         # Read flat data
         self.offer_data = pd.read_json(offer_datafile)
-        logger.info(f"Loaded data from file: {Path(self.offer_datafile).resolve()}")
+        logger.info(
+            f"Loaded data from file: {Path(self.offer_datafile).resolve()}")
         logger.debug(f"Offer data:\n{self.offer_data.head()}")
         logger.debug(
             f"Available columns are: {', '.join(self.offer_data.columns)}")
@@ -39,7 +42,7 @@ class OfferAnalyzer:
         with pd.option_context('precision', 0):
             logger.info(f"\n{price_summary}")
 
-        fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
+        plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
         plt.subplot(2, 1, 1)
         self._plot_price_histogram(self.offer_data['price'],
                                    title="Price distribution",
@@ -92,7 +95,9 @@ class OfferAnalyzer:
             median_price = price_data.median()
             hist_y, hist_x = np.histogram(price_data, bins=n_bins)
             plt.axvline(median_price, color='midnightblue', linewidth=2)
-            plt.text(median_price, np.quantile(hist_y, 0.25), s=f"Median price={median_price:,.0f} z\u0142", rotation=90,
+            plt.text(median_price, np.quantile(hist_y, 0.25),
+                     s=f"Median price={median_price:,.0f} z\u0142",
+                     rotation=90,
                      horizontalalignment="right",
                      verticalalignment="bottom")
 
@@ -120,7 +125,7 @@ class OfferAnalyzer:
             logger.info(f"\n{price_district_summary}")
 
         # Plots
-        fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
+        plt.subplots(nrows=2, ncols=1, figsize=(10, 7))
         plt.subplot(2, 1, 1)
         self._plot_price_by_district(
             price_district_summary, 'Price', 50000, color="darkcyan")
